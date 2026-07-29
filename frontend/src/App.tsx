@@ -6,16 +6,7 @@ import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import CompleteProfile from './pages/auth/CompleteProfile'
 import Dashboard from './pages/app/Dashboard'
-
-/**
- * Two gates, not one:
- *   RequireAuth    — signed in at all
- *   RequireProfile — signed in AND credentials on file
- *
- * Consultation routes use RequireProfile because a FHIR Practitioner
- * resource needs a registration number. The backend enforces the same rule
- * in require_complete_profile; this is convenience, not security.
- */
+import Patients from './pages/app/Patients'
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { doctor, loading } = useAuth()
@@ -62,6 +53,14 @@ export default function App() {
         element={
           <RequireProfile>
             <Dashboard />
+          </RequireProfile>
+        }
+      />
+      <Route
+        path="/app/patients"
+        element={
+          <RequireProfile>
+            <Patients />
           </RequireProfile>
         }
       />

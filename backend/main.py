@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import database as db
 from config import settings
-from routers import auth, doctors
+from routers import auth, doctors, patients
 
 
 @asynccontextmanager
@@ -15,7 +15,10 @@ async def lifespan(app: FastAPI):
     # Indexes are idempotent, so creating them on every boot is safe and
     # means a fresh clone works without a manual migration step.
     if settings.mongodb_url:
-        await db.ensure_indexes()
+        try:
+            await db.ensure_indexes()
+        except Exception as exc:
+            print(f"WARNING: could not reach MongoDB — {exc}")
     yield
     await db.close_db()
 
@@ -37,7 +40,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(doctors.router)
-
+app.include_router(patients.router)
 
 @app.get("/health", tags=["system"])
 async def health():
