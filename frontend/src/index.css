@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   MedBridge design tokens
+
+   Direction: ink on paper. A clinical case sheet, not a dashboard.
+   OPDs are brightly lit and doctors read records on paper — a light,
+   document-like surface is both more legible in situ and more honest to
+   the subject than dark-mode chrome.
+
+   Spend boldness in one place: the STAMP. Everything else stays quiet.
+--------------------------------------------------------------------------- */
+
+@theme {
+  --color-paper: #fbfaf7;   /* case sheet stock */
+  --color-wash: #ede9df;    /* filled fields, muted bands */
+  --color-rule: #d9d5cb;    /* ruled lines, borders */
+  --color-ink: #16211c;     /* fountain-pen near-black, green undertone */
+  --color-graphite: #5c655f; /* secondary text */
+  --color-seal: #0f5c4a;    /* the stamp — primary actions, confirmed state */
+  --color-flag: #b4532a;    /* red-pen correction — errors, low confidence */
+  --color-caution: #8a6d1f; /* amber — medium confidence */
+
+  --font-display: "Spectral", Georgia, serif;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible keyboard focus everywhere — non-negotiable quality floor. */
+:focus-visible {
+  outline: 2px solid var(--color-seal);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
