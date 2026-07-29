@@ -7,3 +7,5 @@ __pycache__/
 dist/
 .vscode/
 .claude/settings.local.json
+eval/data/audio/*.wav
+!eval/data/audio/README.md
