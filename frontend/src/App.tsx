@@ -3,10 +3,14 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { useAuth } from './lib/auth'
 import Login from './pages/auth/Login'
+import Landing from './pages/Landing'
 import Register from './pages/auth/Register'
 import CompleteProfile from './pages/auth/CompleteProfile'
 import Dashboard from './pages/app/Dashboard'
 import Patients from './pages/app/Patients'
+import PatientDetail from './pages/app/PatientDetail'
+import ReportPage from './pages/app/Report'
+import PatientCardPage from './pages/app/PatientCard'
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { doctor, loading } = useAuth()
@@ -36,6 +40,7 @@ function LoadingScreen() {
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
@@ -61,6 +66,30 @@ export default function App() {
         element={
           <RequireProfile>
             <Patients />
+          </RequireProfile>
+        }
+      />
+      <Route
+        path="/app/patients/:id"
+        element={
+          <RequireProfile>
+            <PatientDetail />
+          </RequireProfile>
+        }
+      />
+      <Route
+        path="/app/sessions/:sessionId/report"
+        element={
+          <RequireProfile>
+            <ReportPage />
+          </RequireProfile>
+        }
+      />
+      <Route
+        path="/app/sessions/:sessionId/card"
+        element={
+          <RequireProfile>
+            <PatientCardPage />
           </RequireProfile>
         }
       />

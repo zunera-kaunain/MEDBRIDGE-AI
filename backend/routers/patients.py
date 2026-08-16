@@ -6,16 +6,24 @@ clinic's records by guessing an id.
 """
 
 import re
+import string
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 import database as db
 from middleware.auth import get_current_doctor
 from models.doctor import Doctor
-from models.patient import Patient, PatientCreate, PatientSummary
+from models.patient import Patient, PatientCreate, PatientSummary, PatientUpdate
 from models.session import Session
 
 router = APIRouter(prefix="/api/patients", tags=["patients"])
+
+
+def _next_short_id(existing_count: int) -> str:
+    """A01, A02, ... A99, B01, ... — short enough to say out loud."""
+    letter_index, number = divmod(existing_count, 99)
+    letter = string.ascii_uppercase[letter_index]
+    return f"{letter}{number + 1:02d}"
 
 
 @router.post("", response_model=Patient, status_code=201)
@@ -23,14 +31,17 @@ async def create_patient(
     payload: PatientCreate,
     current: Doctor = Depends(get_current_doctor),
 ) -> Patient:
-    patient = Patient(doctor_id=current.id, **payload.model_dump())
+    existing_count = await db.patients().count_documents({"doctor_id": current.id})
+    short_id = _next_short_id(existing_count)
+
+    patient = Patient(doctor_id=current.id, short_id=short_id, **payload.model_dump())
     await db.patients().insert_one(patient.model_dump())
     return patient
 
 
 @router.get("", response_model=list[PatientSummary])
 async def list_patients(
-    q: str | None = Query(None, description="Search name or phone"),
+    q: str | None = Query(None, description="Search name, phone, or short ID"),
     limit: int = Query(50, le=200),
     current: Doctor = Depends(get_current_doctor),
 ) -> list[PatientSummary]:
@@ -49,6 +60,7 @@ async def list_patients(
         match["$or"] = [
             {"full_name": {"$regex": safe, "$options": "i"}},
             {"phone": {"$regex": safe, "$options": "i"}},
+            {"short_id": {"$regex": safe, "$options": "i"}},
         ]
 
     pipeline = [
@@ -94,6 +106,24 @@ async def get_patient(
     patient_id: str,
     current: Doctor = Depends(get_current_doctor),
 ) -> Patient:
+    return await _owned_patient(patient_id, current.id)
+
+
+@router.patch("/{patient_id}", response_model=Patient)
+async def update_patient(
+    patient_id: str,
+    payload: PatientUpdate,
+    current: Doctor = Depends(get_current_doctor),
+) -> Patient:
+    await _owned_patient(patient_id, current.id)  # ownership check
+
+    updates = {k: v for k, v in payload.model_dump().items() if v is not None}
+    if updates:
+        await db.patients().update_one(
+            {"id": patient_id, "doctor_id": current.id},
+            {"$set": updates},
+        )
+
     return await _owned_patient(patient_id, current.id)
 
 

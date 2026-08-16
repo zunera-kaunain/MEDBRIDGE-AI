@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { api } from '../../lib/api'
 import { AppLayout } from '../../components/AppLayout'
@@ -20,6 +21,7 @@ const EMPTY_FORM = {
 }
 
 export default function Patients() {
+  const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [rows, setRows] = useState<PatientSummary[]>([])
   const [loading, setLoading] = useState(true)
@@ -89,9 +91,9 @@ export default function Patients() {
         {!adding && (
           <button
             onClick={() => setAdding(true)}
-            className="border border-seal px-4 py-2 font-mono text-[11px] uppercase tracking-[0.12em] text-seal hover:bg-seal hover:text-paper"
+            className="border border-seal px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-seal transition-colors hover:bg-seal hover:text-paper"
           >
-            Add patient
+            + Add Patient
           </button>
         )}
       </div>
@@ -169,7 +171,7 @@ export default function Patients() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by name or phone"
+          placeholder="Search by name, phone, or ID"
           className="w-full max-w-sm border-b border-rule bg-transparent pb-1.5 text-[15px] outline-none placeholder:text-rule focus:border-seal"
         />
       </div>
@@ -182,9 +184,11 @@ export default function Patients() {
 
       <div className="mt-6 border border-rule bg-white">
         {loading ? (
-          <p className="px-6 py-10 text-center font-mono text-[11px] uppercase tracking-[0.18em] text-graphite">
-            Loading
-          </p>
+          <div className="px-6 py-14 text-center">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-graphite">
+              Loading records…
+            </p>
+          </div>
         ) : rows.length === 0 ? (
           <div className="px-6 py-14 text-center">
             <p className="font-display text-lg">
@@ -192,7 +196,7 @@ export default function Patients() {
             </p>
             <p className="mx-auto mt-2 max-w-sm text-sm text-graphite">
               {query
-                ? 'Try a partial name or the phone number.'
+                ? 'Try a partial name, phone number, or ID.'
                 : 'Add a patient to start recording consultations.'}
             </p>
           </div>
@@ -200,7 +204,7 @@ export default function Patients() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-rule">
-                {['Name', 'Age / Sex', 'Language', 'Visits', 'Last seen'].map(
+                {['ID', 'Name', 'Age / Sex', 'Language', 'Visits', 'Last seen'].map(
                   (h) => (
                     <th
                       key={h}
@@ -216,9 +220,25 @@ export default function Patients() {
               {rows.map((p) => (
                 <tr
                   key={p.id}
-                  className="border-b border-rule last:border-0 hover:bg-wash/50"
+                  onClick={() => navigate(`/app/patients/${p.id}`)}
+                  className="cursor-pointer border-b border-rule last:border-0 hover:bg-wash/50"
                 >
-                  <td className="px-5 py-3 font-medium">{p.full_name}</td>
+                  <td className="px-5 py-3 font-mono text-xs text-graphite">
+                    {p.short_id}
+                  </td>
+                  <td className="px-5 py-3">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-wash font-mono text-[10px] font-medium text-graphite">
+                        {p.full_name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .slice(0, 2)
+                          .join('')
+                          .toUpperCase()}
+                      </span>
+                      <span className="font-medium">{p.full_name}</span>
+                    </div>
+                  </td>
                   <td className="px-5 py-3 text-graphite">
                     {p.age} / {p.gender.charAt(0).toUpperCase()}
                   </td>

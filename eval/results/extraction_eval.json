@@ -1,0 +1,271 @@
+{
+  "totals": {
+    "symptoms": {
+      "tp": 10,
+      "fp": 7,
+      "fn": 3,
+      "precision": 0.588,
+      "recall": 0.769,
+      "f1": 0.667
+    },
+    "diagnosis": {
+      "tp": 6,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "medications": {
+      "tp": 6,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    }
+  },
+  "latency": {
+    "mean": 3.777306916666627,
+    "min": 2.860053400000197,
+    "max": 4.916829599999801
+  },
+  "per_clip": [
+    {
+      "clip_id": "kn_en_02",
+      "latency_sec": 3.82,
+      "symptoms": {
+        "tp": 3,
+        "fp": 2,
+        "fn": 0,
+        "predicted": [
+          "Fever for two days",
+          "Weakness",
+          "Body pain",
+          "Headache",
+          "Sore throat"
+        ],
+        "expected": [
+          "weakness",
+          "body pain",
+          "headache"
+        ]
+      },
+      "diagnosis": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "predicted": [
+          "Viral fever"
+        ],
+        "expected": [
+          "viral fever"
+        ]
+      },
+      "medications": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "predicted": [
+          "Paracetamol"
+        ],
+        "expected": [
+          "paracetamol"
+        ]
+      }
+    },
+    {
+      "clip_id": "kn_en_03",
+      "latency_sec": 2.86,
+      "symptoms": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "predicted": [],
+        "expected": []
+      },
+      "diagnosis": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "predicted": [
+          "Diabetes mellitus"
+        ],
+        "expected": [
+          "type 2 diabetes mellitus, suboptimal control"
+        ]
+      },
+      "medications": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "predicted": [
+          "Metformin"
+        ],
+        "expected": [
+          "metformin"
+        ]
+      }
+    },
+    {
+      "clip_id": "kn_en_04",
+      "latency_sec": 3.95,
+      "symptoms": {
+        "tp": 1,
+        "fp": 2,
+        "fn": 2,
+        "predicted": [
+          "Burning in the stomach",
+          "Symptoms worse after meals",
+          "Sleep disturbance"
+        ],
+        "expected": [
+          "epigastric burning",
+          "worse after meals",
+          "disturbed sleep"
+        ]
+      },
+      "diagnosis": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "predicted": [
+          "Gastritis"
+        ],
+        "expected": [
+          "gastritis"
+        ]
+      },
+      "medications": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "predicted": [
+          "Pantoprazole"
+        ],
+        "expected": [
+          "pantoprazole"
+        ]
+      }
+    },
+    {
+      "clip_id": "hi_en_01",
+      "latency_sec": 4.14,
+      "symptoms": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "predicted": [],
+        "expected": []
+      },
+      "diagnosis": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "predicted": [
+          "Hypertension"
+        ],
+        "expected": [
+          "hypertension, suboptimal control"
+        ]
+      },
+      "medications": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "predicted": [
+          "Amlodipine"
+        ],
+        "expected": [
+          "amlodipine"
+        ]
+      }
+    },
+    {
+      "clip_id": "hi_en_02",
+      "latency_sec": 4.92,
+      "symptoms": {
+        "tp": 3,
+        "fp": 2,
+        "fn": 1,
+        "predicted": [
+          "Cough for four days",
+          "Cough worse at night",
+          "Low grade fever",
+          "Yellow/purulent sputum",
+          "Crepitations in right lower zone on auscultation"
+        ],
+        "expected": [
+          "cough",
+          "nocturnal worsening",
+          "low grade fever",
+          "purulent sputum"
+        ]
+      },
+      "diagnosis": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "predicted": [
+          "Lower respiratory tract infection"
+        ],
+        "expected": [
+          "lower respiratory tract infection"
+        ]
+      },
+      "medications": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "predicted": [
+          "Azithromycin"
+        ],
+        "expected": [
+          "azithromycin"
+        ]
+      }
+    },
+    {
+      "clip_id": "en_01",
+      "latency_sec": 2.97,
+      "symptoms": {
+        "tp": 3,
+        "fp": 1,
+        "fn": 0,
+        "predicted": [
+          "Sore throat",
+          "Difficulty swallowing",
+          "Mild fever mostly in the evening",
+          "Inflamed tonsils with exudate"
+        ],
+        "expected": [
+          "sore throat",
+          "difficulty swallowing",
+          "mild evening fever"
+        ]
+      },
+      "diagnosis": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "predicted": [
+          "Acute pharyngitis, most likely bacterial"
+        ],
+        "expected": [
+          "acute pharyngitis, likely bacterial"
+        ]
+      },
+      "medications": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "predicted": [
+          "Amoxicillin"
+        ],
+        "expected": [
+          "amoxicillin"
+        ]
+      }
+    }
+  ]
+}

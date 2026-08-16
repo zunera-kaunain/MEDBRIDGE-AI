@@ -28,7 +28,7 @@ class Settings(BaseSettings):
 
     # Whisper
     whisper_model: str = "medium"                  # streaming, 6GB VRAM
-    eval_whisper_model: str = "large-v3"           # offline eval only
+    eval_whisper_model: str = "medium"           # offline eval only
     whisper_compute_type: str = "int8"
     stream_partial_interval_ms: int = 2000
     vad_silence_ms: int = 700

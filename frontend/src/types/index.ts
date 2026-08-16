@@ -114,9 +114,19 @@ export interface PatientCreate {
   preferred_language: Language
 }
 
+export interface PatientUpdate {
+  full_name?: string
+  age?: number
+  gender?: Gender
+  phone?: string
+  abha_id?: string
+  preferred_language?: Language
+}
+
 export interface Patient {
   id: string
   doctor_id: string
+  short_id: string
   full_name: string
   age: number
   gender: Gender
@@ -128,6 +138,7 @@ export interface Patient {
 
 export interface PatientSummary {
   id: string
+  short_id: string
   full_name: string
   age: number
   gender: Gender
