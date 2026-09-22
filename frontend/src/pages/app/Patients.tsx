@@ -17,6 +17,7 @@ const EMPTY_FORM = {
   age: '',
   gender: 'female' as Gender,
   phone: '',
+  email: '',
   preferred_language: 'kn' as Language,
 }
 
@@ -62,6 +63,7 @@ export default function Patients() {
           age: Number(form.age),
           gender: form.gender,
           phone: form.phone || undefined,
+          email: form.email || undefined,
           preferred_language: form.preferred_language,
         },
       })
@@ -115,6 +117,12 @@ export default function Patients() {
                 type="tel"
                 value={form.phone}
                 onChange={(e) => update('phone', e.target.value)}
+              />
+              <Field
+                label="Email"
+                type="email"
+                value={form.email}
+                onChange={(e) => update('email', e.target.value)}
               />
               <Field
                 label="Age"

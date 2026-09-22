@@ -54,8 +54,6 @@ async def list_patients(
     match: dict = {"doctor_id": current.id}
 
     if q:
-        # re.escape matters: an unescaped user string is a regex, and
-        # something like "(((((" would either error or hang the query.
         safe = re.escape(q.strip())
         match["$or"] = [
             {"full_name": {"$regex": safe, "$options": "i"}},
@@ -125,6 +123,29 @@ async def update_patient(
         )
 
     return await _owned_patient(patient_id, current.id)
+
+
+@router.delete("/{patient_id}", status_code=204)
+async def delete_patient(
+    patient_id: str,
+    current: Doctor = Depends(get_current_doctor),
+) -> None:
+    """Permanently delete a patient and every session, report, and patient
+    card belonging to them. Irreversible — no undo, no soft-delete.
+    """
+    await _owned_patient(patient_id, current.id)  # ownership check
+
+    session_docs = (
+        await db.sessions().find({"patient_id": patient_id}).to_list(length=1000)
+    )
+    session_ids = [s["id"] for s in session_docs]
+
+    if session_ids:
+        await db.reports().delete_many({"session_id": {"$in": session_ids}})
+        await db.patient_cards().delete_many({"session_id": {"$in": session_ids}})
+        await db.sessions().delete_many({"patient_id": patient_id})
+
+    await db.patients().delete_one({"id": patient_id, "doctor_id": current.id})
 
 
 @router.get("/{patient_id}/history", response_model=list[Session])

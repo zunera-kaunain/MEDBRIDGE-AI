@@ -18,7 +18,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const { doctor, signOut } = useAuth()
 
   return (
-    <div className="min-h-screen">
+    <div className="relative z-10 min-h-screen">
       <header className="border-b border-rule bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-baseline gap-8">
@@ -48,6 +48,18 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 }
               >
                 Patients
+              </NavLink>
+              <NavLink
+                to="/app/evaluation"
+                className={({ isActive }) =>
+                  `${navItem} ${
+                    isActive
+                      ? 'border-seal text-ink'
+                      : 'border-transparent text-graphite hover:text-ink'
+                  }`
+                }
+              >
+                Evaluation
               </NavLink>
             </nav>
           </div>

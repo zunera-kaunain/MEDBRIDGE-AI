@@ -45,7 +45,7 @@ def _get_model() -> WhisperModel:
         _model = WhisperModel(
             settings.whisper_model,
             device="cpu",
-            compute_type="int8_float16" if settings.whisper_compute_type == "int8" else settings.whisper_compute_type
+            compute_type=settings.whisper_compute_type,
         )
         print("[asr] model loaded successfully")
     return _model
@@ -197,7 +197,7 @@ async def transcribe_file(path: str, language_pair: LanguagePair) -> str:
     model = WhisperModel(
         settings.eval_whisper_model,
         device="cpu",
-        compute_type="int8_float16" if settings.whisper_compute_type == "int8" else settings.whisper_compute_type,
+        compute_type=settings.whisper_compute_type,
     )
     segments, _info = model.transcribe(
         path,

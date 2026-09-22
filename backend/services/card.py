@@ -132,7 +132,7 @@ async def generate_card(
 
     response = client.messages.create(
         model=settings.card_model,
-        max_tokens=1500,
+        max_tokens=2500,
         system=_SYSTEM_PROMPT,
         messages=[
             {
@@ -146,13 +146,21 @@ async def generate_card(
     )
 
     raw_text = next(
-    block.text for block in response.content if hasattr(block, "text")
-).strip()
+        block.text for block in response.content if hasattr(block, "text")
+    ).strip()
     if raw_text.startswith("```"):
         raw_text = raw_text.strip("`")
         if raw_text.startswith("json"):
             raw_text = raw_text[4:]
-    data = json.loads(raw_text)
+
+    try:
+        data = json.loads(raw_text)
+    except json.JSONDecodeError as e:
+        raise RuntimeError(
+            f"Card generation returned incomplete JSON (likely cut off by the "
+            f"token limit) for language={language.value}. Try again, or the "
+            f"prompt may need shortening for this language."
+        ) from e
 
     return PatientCard(
         session_id=report.session_id,

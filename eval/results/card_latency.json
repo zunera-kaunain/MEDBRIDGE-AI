@@ -1,0 +1,43 @@
+{
+  "per_language": [
+    {
+      "language": "en",
+      "generate_sec": 6.58,
+      "pdf_render_sec": 7.0,
+      "total_sec": 13.58
+    },
+    {
+      "language": "hi",
+      "generate_sec": 7.98,
+      "pdf_render_sec": 1.4,
+      "total_sec": 9.38
+    },
+    {
+      "language": "kn",
+      "generate_sec": 32.9,
+      "pdf_render_sec": 1.5,
+      "total_sec": 34.4
+    },
+    {
+      "language": "ta",
+      "generate_sec": 21.83,
+      "pdf_render_sec": 1.41,
+      "total_sec": 23.25
+    },
+    {
+      "language": "te",
+      "generate_sec": 20.44,
+      "pdf_render_sec": 1.58,
+      "total_sec": 22.02
+    },
+    {
+      "language": "ml",
+      "generate_sec": 35.81,
+      "pdf_render_sec": 1.44,
+      "total_sec": 37.25
+    }
+  ],
+  "mean_generate_sec": 20.92,
+  "mean_pdf_render_sec": 2.39,
+  "mean_total_sec": 23.31
+}

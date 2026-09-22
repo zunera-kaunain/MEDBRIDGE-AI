@@ -11,6 +11,9 @@ import Patients from './pages/app/Patients'
 import PatientDetail from './pages/app/PatientDetail'
 import ReportPage from './pages/app/Report'
 import PatientCardPage from './pages/app/PatientCard'
+import ReferralPage from './pages/app/Referral'
+import { DoodleBackground } from './components/DoodleBackground'
+import EvaluationPage from './pages/app/Evaluation'
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { doctor, loading } = useAuth()
@@ -39,62 +42,81 @@ function LoadingScreen() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+    <>
+      <DoodleBackground />
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      <Route
-        path="/complete-profile"
-        element={
-          <RequireAuth>
-            <CompleteProfile />
-          </RequireAuth>
-        }
-      />
+        <Route
+          path="/complete-profile"
+          element={
+            <RequireAuth>
+              <CompleteProfile />
+            </RequireAuth>
+          }
+        />
 
-      <Route
-        path="/app"
-        element={
-          <RequireProfile>
-            <Dashboard />
-          </RequireProfile>
-        }
-      />
-      <Route
-        path="/app/patients"
-        element={
-          <RequireProfile>
-            <Patients />
-          </RequireProfile>
-        }
-      />
-      <Route
-        path="/app/patients/:id"
-        element={
-          <RequireProfile>
-            <PatientDetail />
-          </RequireProfile>
-        }
-      />
-      <Route
-        path="/app/sessions/:sessionId/report"
-        element={
-          <RequireProfile>
-            <ReportPage />
-          </RequireProfile>
-        }
-      />
-      <Route
-        path="/app/sessions/:sessionId/card"
-        element={
-          <RequireProfile>
-            <PatientCardPage />
-          </RequireProfile>
-        }
-      />
+        <Route
+          path="/app"
+          element={
+            <RequireProfile>
+              <Dashboard />
+            </RequireProfile>
+          }
+        />
+        <Route
+          path="/app/patients"
+          element={
+            <RequireProfile>
+              <Patients />
+            </RequireProfile>
+          }
+        />
+        <Route
+          path="/app/evaluation"
+          element={
+            <RequireProfile>
+              <EvaluationPage />
+            </RequireProfile>
+          }
+        />
+        <Route
+          path="/app/patients/:id"
+          element={
+            <RequireProfile>
+              <PatientDetail />
+            </RequireProfile>
+          }
+        />
+        <Route
+          path="/app/sessions/:sessionId/report"
+          element={
+            <RequireProfile>
+              <ReportPage />
+            </RequireProfile>
+          }
+        />
+        <Route
+          path="/app/sessions/:sessionId/card"
+          element={
+            <RequireProfile>
+              <PatientCardPage />
+            </RequireProfile>
+          }
+        />
+        <Route
+          path="/app/sessions/:sessionId/referral"
+          element={
+            <RequireProfile>
+              <ReferralPage />
+            </RequireProfile>
+          }
+        />
 
-      <Route path="*" element={<Navigate to="/app" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/app" replace />} />
+      </Routes>
+    </>
   )
 }

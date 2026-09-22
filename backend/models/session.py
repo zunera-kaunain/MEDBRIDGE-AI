@@ -32,12 +32,26 @@ class Session(BaseModel):
     transcript: str = ""
     audio_duration_sec: float = 0.0
 
+    # Patient (or their attendant) must explicitly consent to this
+    # consultation being recorded and processed before recording starts.
+    # Recording/upload endpoints must reject audio until this is True —
+    # see routers/sessions.py.
+    consent_given: bool = False
+    consent_timestamp: datetime | None = None
+
     # Four distinct timestamps. ABDM treats these as different things and
     # retrofitting them later is painful.
     encounter_start: datetime = Field(default_factory=utcnow)
     encounter_end: datetime | None = None
     report_generated_at: datetime | None = None
     confirmed_at: datetime | None = None
+
+
+class ConsentConfirm(BaseModel):
+    """Body for POST /api/sessions/{id}/consent. Just a confirmation flag —
+    the timestamp is stamped server-side, never trusted from the client."""
+
+    confirmed: bool = True
 
 
 class TranscriptSegment(BaseModel):

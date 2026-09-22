@@ -36,7 +36,7 @@ export const LANGUAGE_LABELS: Record<Language, string> = {
   kn: 'ಕನ್ನಡ',
   ta: 'தமிழ்',
   te: 'తెలుగు',
-  ml: 'മലയാളം',
+  ml: 'മലയാളం',
 }
 
 export const LANGUAGE_PAIR_LABELS: Record<LanguagePair, string> = {
@@ -110,6 +110,7 @@ export interface PatientCreate {
   age: number
   gender: Gender
   phone?: string
+  email?: string
   abha_id?: string
   preferred_language: Language
 }
@@ -119,9 +120,11 @@ export interface PatientUpdate {
   age?: number
   gender?: Gender
   phone?: string
+  email?: string
   abha_id?: string
   preferred_language?: Language
 }
+
 
 export interface Patient {
   id: string
@@ -131,6 +134,7 @@ export interface Patient {
   age: number
   gender: Gender
   phone: string | null
+  email: string | null
   abha_id: string | null
   preferred_language: Language
   created_at: string
@@ -164,10 +168,16 @@ export interface Session {
   status: SessionStatus
   transcript: string
   audio_duration_sec: number
+  consent_given: boolean
+  consent_timestamp: string | null
   encounter_start: string
   encounter_end: string | null
   report_generated_at: string | null
   confirmed_at: string | null
+}
+
+export interface ConsentConfirm {
+  confirmed: boolean
 }
 
 export interface TranscriptSegment {
@@ -229,6 +239,21 @@ export interface FollowUp {
   referral: ExtractedField | null
 }
 
+export interface IcdCode {
+  diagnosis_text: string
+  code: string
+  system: string
+  display: string
+  verified: boolean
+}
+
+export interface InteractionWarning {
+  drug_a: string
+  drug_b: string
+  severity: string // "high" or "moderate"
+  description: string
+}
+
 export interface Report {
   id: string
   session_id: string
@@ -237,6 +262,9 @@ export interface Report {
   chief_complaint: ExtractedField | null
   symptoms: ExtractedField[]
   diagnosis: ExtractedField[]
+  family_history: ExtractedField[]
+  icd_codes: IcdCode[]
+  interaction_warnings: InteractionWarning[]
   medications: Medication[]
   followup: FollowUp
   notes: string
@@ -249,9 +277,33 @@ export interface ReportUpdate {
   chief_complaint?: ExtractedField
   symptoms?: ExtractedField[]
   diagnosis?: ExtractedField[]
+  family_history?: ExtractedField[]
   medications?: Medication[]
   followup?: FollowUp
   notes?: string
+}
+
+// ---------------------------------------------------------------------------
+// Referral summary
+// ---------------------------------------------------------------------------
+
+export interface ReferralCreate {
+  specialist_name?: string
+  department?: string
+  reason?: string
+}
+
+export interface ReferralSummary {
+  id: string
+  session_id: string
+  specialist_name: string | null
+  department: string | null
+  reason: string
+  chief_complaint: string | null
+  diagnosis: string[]
+  icd_codes: string[]
+  medications: string[]
+  generated_at: string
 }
 
 // ---------------------------------------------------------------------------

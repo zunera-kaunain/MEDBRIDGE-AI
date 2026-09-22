@@ -26,14 +26,14 @@
     }
   },
   "latency": {
-    "mean": 3.777306916666627,
-    "min": 2.860053400000197,
-    "max": 4.916829599999801
+    "mean": 3.091040900000005,
+    "min": 2.40024870000002,
+    "max": 5.326861000000008
   },
   "per_clip": [
     {
       "clip_id": "kn_en_02",
-      "latency_sec": 3.82,
+      "latency_sec": 5.33,
       "symptoms": {
         "tp": 3,
         "fp": 2,
@@ -76,12 +76,15 @@
     },
     {
       "clip_id": "kn_en_03",
-      "latency_sec": 2.86,
+      "latency_sec": 2.71,
       "symptoms": {
         "tp": 0,
-        "fp": 0,
+        "fp": 2,
         "fn": 0,
-        "predicted": [],
+        "predicted": [
+          "Fasting blood sugar 142 mg/dL",
+          "Post-prandial blood sugar 190 mg/dL"
+        ],
         "expected": []
       },
       "diagnosis": {
@@ -109,7 +112,7 @@
     },
     {
       "clip_id": "kn_en_04",
-      "latency_sec": 3.95,
+      "latency_sec": 2.64,
       "symptoms": {
         "tp": 1,
         "fp": 2,
@@ -150,7 +153,7 @@
     },
     {
       "clip_id": "hi_en_01",
-      "latency_sec": 4.14,
+      "latency_sec": 2.4,
       "symptoms": {
         "tp": 0,
         "fp": 0,
@@ -183,17 +186,16 @@
     },
     {
       "clip_id": "hi_en_02",
-      "latency_sec": 4.92,
+      "latency_sec": 2.92,
       "symptoms": {
         "tp": 3,
-        "fp": 2,
+        "fp": 1,
         "fn": 1,
         "predicted": [
-          "Cough for four days",
+          "Cough for 4 days",
           "Cough worse at night",
           "Low grade fever",
-          "Yellow/purulent sputum",
-          "Crepitations in right lower zone on auscultation"
+          "Yellow/purulent sputum"
         ],
         "expected": [
           "cough",
@@ -227,16 +229,15 @@
     },
     {
       "clip_id": "en_01",
-      "latency_sec": 2.97,
+      "latency_sec": 2.55,
       "symptoms": {
         "tp": 3,
-        "fp": 1,
+        "fp": 0,
         "fn": 0,
         "predicted": [
           "Sore throat",
           "Difficulty swallowing",
-          "Mild fever mostly in the evening",
-          "Inflamed tonsils with exudate"
+          "Mild fever mostly in the evening"
         ],
         "expected": [
           "sore throat",

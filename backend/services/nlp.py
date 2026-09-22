@@ -44,7 +44,15 @@ patient denies it (says no, "illa", "nahi", or similar), that symptom is \
 ABSENT. Do NOT add an entry for it in "symptoms" at all — not even phrased \
 as "no X" or "denies X". Absent means the symptom is left out of the list \
 entirely, exactly as if it had never been mentioned. Only symptoms the \
-patient reports as present or experienced belong in the list.
+patient reports as present or experienced belong in the list. The same rule \
+applies to "family_history" — a denial ("no family history of diabetes") \
+means nothing is added, not an entry saying it was denied.
+
+"family_history" captures a condition explicitly attributed to a named or \
+implied relative (e.g. "my mother has had joint pain for years", "father is \
+diabetic"). Do not confuse this with the patient's own symptoms or \
+diagnosis — those belong in "symptoms" / "diagnosis" even if the same \
+condition also runs in the family.
 
 For every extracted value, also give a confidence score from 0.0 to 1.0 \
 reflecting how clearly and unambiguously the transcript supports that \
@@ -57,6 +65,7 @@ exactly this shape:
   "chief_complaint": {"text": "...", "confidence": 0.0},
   "symptoms": [{"text": "...", "confidence": 0.0}],
   "diagnosis": [{"text": "...", "confidence": 0.0}],
+  "family_history": [{"text": "...", "confidence": 0.0}],
   "medications": [
     {
       "name": {"text": "...", "confidence": 0.0},
@@ -152,6 +161,9 @@ async def extract_report(
     diagnosis = [
         f for f in (_field(transcript, d) for d in data.get("diagnosis", [])) if f
     ]
+    family_history = [
+        f for f in (_field(transcript, h) for h in data.get("family_history", [])) if f
+    ]
 
     medications = []
     for m in data.get("medications", []):
@@ -182,6 +194,7 @@ async def extract_report(
         chief_complaint=_field(transcript, data.get("chief_complaint")),
         symptoms=symptoms,
         diagnosis=diagnosis,
+        family_history=family_history,
         medications=medications,
         followup=followup,
     )

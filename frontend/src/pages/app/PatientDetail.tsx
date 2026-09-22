@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../../lib/api'
 import { AppLayout } from '../../components/AppLayout'
 import { Button, ErrorNotice, Field, SelectField } from '../../components/ui'
+import { PatientChat } from '../../components/PatientChat'
 import {
   LANGUAGE_LABELS,
   type Gender,
@@ -32,6 +33,7 @@ export default function PatientDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [starting, setStarting] = useState(false)
+  const [deletingPatient, setDeletingPatient] = useState(false)
 
   const [editing, setEditing] = useState(false)
   const [editForm, setEditForm] = useState({
@@ -39,6 +41,7 @@ export default function PatientDetail() {
     age: '',
     gender: 'female' as Gender,
     phone: '',
+    email: '',
     preferred_language: 'kn' as Language,
   })
   const [editError, setEditError] = useState('')
@@ -69,6 +72,7 @@ export default function PatientDetail() {
       age: String(patient.age),
       gender: patient.gender,
       phone: patient.phone ?? '',
+      email: patient.email ?? '',
       preferred_language: patient.preferred_language,
     })
     setEditError('')
@@ -90,6 +94,7 @@ export default function PatientDetail() {
         age: Number(editForm.age),
         gender: editForm.gender,
         phone: editForm.phone || undefined,
+        email: editForm.email || undefined,
         preferred_language: editForm.preferred_language,
       }
       const updated = await api<Patient>(`/api/patients/${patient.id}`, {
@@ -128,6 +133,34 @@ export default function PatientDetail() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not start consultation')
       setStarting(false)
+    }
+  }
+
+  async function deleteSession(sessionId: string) {
+    if (!window.confirm('Delete this visit permanently? This cannot be undone.')) return
+    try {
+      await api(`/api/sessions/${sessionId}`, { method: 'DELETE' })
+      setHistory((prev) => prev.filter((s) => s.id !== sessionId))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not delete visit')
+    }
+  }
+
+  async function handleDeletePatient() {
+    if (!patient) return
+    const confirmed = window.confirm(
+      `Permanently delete ${patient.full_name} and ALL their visit records, reports, and cards? This cannot be undone.`,
+    )
+    if (!confirmed) return
+
+    setDeletingPatient(true)
+    setError('')
+    try {
+      await api(`/api/patients/${patient.id}`, { method: 'DELETE' })
+      navigate('/app/patients')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not delete patient')
+      setDeletingPatient(false)
     }
   }
 
@@ -173,6 +206,7 @@ export default function PatientDetail() {
               <p className="mt-1 text-sm text-graphite">
                 {patient.age} yrs · {patient.gender} · {LANGUAGE_LABELS[patient.preferred_language]}
                 {patient.phone && ` · ${patient.phone}`}
+                {patient.email && ` · ${patient.email}`}
               </p>
             </>
           )}
@@ -180,6 +214,13 @@ export default function PatientDetail() {
 
         {!editing && (
           <div className="flex shrink-0 gap-3">
+            <button
+              onClick={handleDeletePatient}
+              disabled={deletingPatient}
+              className="border border-flag px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-flag transition-colors hover:bg-flag hover:text-paper disabled:opacity-50"
+            >
+              {deletingPatient ? 'Deleting…' : 'Delete Patient'}
+            </button>
             <button
               onClick={startEditing}
               className="border border-rule px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-graphite transition-colors hover:bg-wash"
@@ -210,6 +251,12 @@ export default function PatientDetail() {
                 type="tel"
                 value={editForm.phone}
                 onChange={(e) => updateEditField('phone', e.target.value)}
+              />
+              <Field
+                label="Email"
+                type="email"
+                value={editForm.email}
+                onChange={(e) => updateEditField('email', e.target.value)}
               />
               <Field
                 label="Age"
@@ -278,37 +325,46 @@ export default function PatientDetail() {
         ) : (
           <div className="divide-y divide-rule">
             {history.map((s) => (
-              <button
+              <div
                 key={s.id}
-                onClick={() => navigate(`/app/sessions/${s.id}/report`)}
-                className="flex w-full items-center justify-between px-7 py-4 text-left transition-colors hover:bg-wash"
+                className="flex w-full items-center justify-between px-7 py-4 transition-colors hover:bg-wash"
               >
-                <div>
-                  <p className="text-[15px] text-ink">
-                    {new Date(s.encounter_start).toLocaleDateString('en-IN', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                  </p>
-                  <p className="mt-0.5 font-mono text-xs text-graphite">
-                    {s.status}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
+                <button
+                  onClick={() => navigate(`/app/sessions/${s.id}/report`)}
+                  className="flex flex-1 items-center justify-between text-left"
+                >
+                  <div>
+                    <p className="text-[15px] text-ink">
+                      {new Date(s.encounter_start).toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </p>
+                    <p className="mt-0.5 font-mono text-xs text-graphite">
+                      {s.status}
+                    </p>
+                  </div>
                   <span className="font-mono text-xs text-graphite">
                     {new Date(s.encounter_start).toLocaleTimeString('en-IN', {
                       hour: '2-digit',
                       minute: '2-digit',
                     })}
                   </span>
-                  <span className="font-mono text-xs text-seal">→</span>
-                </div>
-              </button>
+                </button>
+                <button
+                  onClick={() => deleteSession(s.id)}
+                  className="ml-4 shrink-0 font-mono text-[10px] uppercase tracking-[0.12em] text-flag hover:opacity-70"
+                >
+                  Delete
+                </button>
+              </div>
             ))}
           </div>
         )}
       </div>
+
+      <PatientChat patientId={patient.id} />
     </AppLayout>
   )
 }

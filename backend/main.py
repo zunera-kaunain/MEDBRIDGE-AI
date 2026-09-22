@@ -1,5 +1,14 @@
 """MedBridge AI — FastAPI application entry point."""
 
+import asyncio
+import sys
+
+# Windows' default asyncio event loop can't launch subprocesses, which
+# Playwright needs to start its browser. This must run before any other
+# asyncio code executes, hence right at the top of the entry point.
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -7,7 +16,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import database as db
 from config import settings
-from routers import auth, doctors, patients, sessions, reports, ws
+from routers import auth, doctors, patients, sessions, reports, evaluation, patient_chat, ws
+from services import reminders as reminder_service
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -18,7 +29,12 @@ async def lifespan(app: FastAPI):
             await db.ensure_indexes()
         except Exception as exc:
             print(f"WARNING: could not reach MongoDB — {exc}")
+
+    reminder_task = asyncio.create_task(reminder_service.run_reminder_loop())
+
     yield
+
+    reminder_task.cancel()
     await db.close_db()
 
 
@@ -43,6 +59,9 @@ app.include_router(patients.router)
 app.include_router(sessions.router)
 app.include_router(reports.router)
 app.include_router(ws.router)
+app.include_router(evaluation.router)
+app.include_router(patient_chat.router)
+
 
 @app.get("/health", tags=["system"])
 async def health():

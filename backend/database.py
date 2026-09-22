@@ -19,7 +19,7 @@ def get_db() -> AsyncIOMotorDatabase:
     if _db is None:
         if not settings.mongodb_url:
             raise RuntimeError("MONGODB_URL is not set in backend/.env")
-        _client = AsyncIOMotorClient(settings.mongodb_url)
+        _client = AsyncIOMotorClient(settings.mongodb_url, tz_aware=True)
         _db = _client[settings.db_name]
     return _db
 
@@ -46,6 +46,14 @@ def patient_cards():
     return get_db()["patient_cards"]
 
 
+def reminders():
+    return get_db()["reminders"]
+
+
+def referral_summaries():
+    return get_db()["referral_summaries"]
+
+
 async def ensure_indexes() -> None:
     """Create indexes. Idempotent — safe to run on every startup."""
     await doctors().create_index("email", unique=True)
@@ -55,6 +63,8 @@ async def ensure_indexes() -> None:
     await sessions().create_index("patient_id")
     await reports().create_index("session_id", unique=True)
     await patient_cards().create_index([("session_id", 1), ("language", 1)])
+    await reminders().create_index([("sent", 1), ("send_at", 1)])
+    await referral_summaries().create_index("session_id", unique=True)
 
 
 async def close_db() -> None:

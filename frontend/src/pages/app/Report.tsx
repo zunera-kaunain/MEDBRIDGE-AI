@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { api } from '../../lib/api'
 import { AppLayout } from '../../components/AppLayout'
-import { Button, ErrorNotice } from '../../components/ui'
+import { Button, ErrorNotice, Chip } from '../../components/ui'
+import { StampBurst } from '../../components/StampBurst'
 import {
   confidenceLevel,
   type ExtractedField,
   type Medication,
+  type Patient,
   type Report,
 } from '../../types'
 
@@ -29,6 +31,10 @@ function emptyMedication(): Medication {
     duration: field(''),
     instructions: field(''),
   }
+}
+
+function safeFilename(name: string): string {
+  return name.trim().replace(/[^a-zA-Z0-9]+/g, '_')
 }
 
 function ViewField({ label, field }: { label: string; field: ExtractedField | null }) {
@@ -78,12 +84,17 @@ export default function ReportPage() {
   const [confirming, setConfirming] = useState(false)
   const [error, setError] = useState('')
   const [patientId, setPatientId] = useState<string | null>(null)
+  const [patient, setPatient] = useState<Patient | null>(null)
+  const [stampTrigger, setStampTrigger] = useState(0)
+  const [codingIcd, setCodingIcd] = useState(false)
+  const [checkingInteractions, setCheckingInteractions] = useState(false)
+  const [interactionsChecked, setInteractionsChecked] = useState(false)
 
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState<Report | null>(null)
   const [saving, setSaving] = useState(false)
 
-  async function load() {
+  const load = useCallback(async () => {
     if (!sessionId) return
     setLoading(true)
     try {
@@ -93,11 +104,11 @@ export default function ReportPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [sessionId])
 
   useEffect(() => {
     load()
-  }, [sessionId])
+  }, [load])
 
   useEffect(() => {
     if (!sessionId) return
@@ -105,6 +116,13 @@ export default function ReportPage() {
       .then((s) => setPatientId(s.patient_id))
       .catch(() => {})
   }, [sessionId])
+
+  useEffect(() => {
+    if (!patientId) return
+    api<Patient>(`/api/patients/${patientId}`)
+      .then(setPatient)
+      .catch(() => {})
+  }, [patientId])
 
   async function handleGenerate() {
     if (!sessionId) return
@@ -122,6 +140,39 @@ export default function ReportPage() {
     }
   }
 
+  async function handleGenerateIcd() {
+    if (!sessionId) return
+    setCodingIcd(true)
+    setError('')
+    try {
+      const r = await api<Report>(`/api/sessions/${sessionId}/report/icd-codes`, {
+        method: 'POST',
+      })
+      setReport(r)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not generate ICD codes')
+    } finally {
+      setCodingIcd(false)
+    }
+  }
+
+  async function handleCheckInteractions() {
+    if (!sessionId) return
+    setCheckingInteractions(true)
+    setError('')
+    try {
+      const r = await api<Report>(`/api/sessions/${sessionId}/report/interactions`, {
+        method: 'POST',
+      })
+      setReport(r)
+      setInteractionsChecked(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not check interactions')
+    } finally {
+      setCheckingInteractions(false)
+    }
+  }
+
   async function handleConfirm() {
     if (!sessionId) return
     setConfirming(true)
@@ -131,6 +182,7 @@ export default function ReportPage() {
         method: 'POST',
       })
       setReport(r)
+      setStampTrigger((n) => n + 1)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not confirm report')
     } finally {
@@ -146,7 +198,9 @@ export default function ReportPage() {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `fhir-bundle-${sessionId}.json`
+      a.download = patient
+        ? `${safeFilename(patient.full_name)}_fhir_bundle.json`
+        : `fhir-bundle-${sessionId}.json`
       a.click()
       URL.revokeObjectURL(url)
     } catch (err) {
@@ -165,7 +219,9 @@ export default function ReportPage() {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `report-${sessionId}.pdf`
+      a.download = patient
+        ? `${safeFilename(patient.full_name)}_report.pdf`
+        : `report-${sessionId}.pdf`
       a.click()
       URL.revokeObjectURL(url)
     } catch (err) {
@@ -197,6 +253,7 @@ export default function ReportPage() {
           chief_complaint: draft.chief_complaint,
           symptoms: draft.symptoms,
           diagnosis: draft.diagnosis,
+          family_history: draft.family_history,
           medications: draft.medications,
           followup: draft.followup,
         },
@@ -204,6 +261,7 @@ export default function ReportPage() {
       setReport(r)
       setEditing(false)
       setDraft(null)
+      setInteractionsChecked(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not save changes')
     } finally {
@@ -223,6 +281,8 @@ export default function ReportPage() {
 
   return (
     <AppLayout>
+      <StampBurst trigger={stampTrigger} label="Confirmed" />
+
       {patientId && (
         <button
           onClick={() => navigate(`/app/patients/${patientId}`)}
@@ -356,6 +416,45 @@ export default function ReportPage() {
                 className="font-mono text-xs text-seal hover:opacity-70"
               >
                 + Add diagnosis
+              </button>
+            </div>
+          </div>
+
+          <div className="border-b border-rule py-3">
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-graphite">
+              Family History
+            </p>
+            <div className="mt-2 space-y-2">
+              {draft.family_history.map((h, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <EditInput
+                    value={h.text}
+                    onChange={(v) => {
+                      const next = [...draft.family_history]
+                      next[i] = field(v)
+                      setDraft({ ...draft, family_history: next })
+                    }}
+                  />
+                  <button
+                    onClick={() =>
+                      setDraft({
+                        ...draft,
+                        family_history: draft.family_history.filter((_, idx) => idx !== i),
+                      })
+                    }
+                    className="shrink-0 font-mono text-xs text-flag hover:opacity-70"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={() =>
+                  setDraft({ ...draft, family_history: [...draft.family_history, field('')] })
+                }
+                className="font-mono text-xs text-seal hover:opacity-70"
+              >
+                + Add family history
               </button>
             </div>
           </div>
@@ -501,17 +600,63 @@ export default function ReportPage() {
 
           {report.diagnosis.length > 0 && (
             <div className="border-b border-rule py-3">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-graphite">
+                  Diagnosis
+                </p>
+                {report.icd_codes.length === 0 && (
+                  <button
+                    onClick={handleGenerateIcd}
+                    disabled={codingIcd}
+                    className="font-mono text-[10px] uppercase tracking-[0.12em] text-seal hover:opacity-70 disabled:opacity-50"
+                  >
+                    {codingIcd ? 'Coding…' : '+ Generate ICD Codes'}
+                  </button>
+                )}
+              </div>
+              <div className="space-y-3">
+                {report.diagnosis.map((d, i) => {
+                  const icd = report.icd_codes.find((c) => c.diagnosis_text === d.text)
+                  return (
+                    <div key={i}>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-[15px] text-ink">{d.text}</p>
+                        <span
+                          className={`font-mono text-[10px] uppercase ${CONFIDENCE_COLOR[confidenceLevel(d.confidence)]}`}
+                        >
+                          {Math.round(d.confidence * 100)}%
+                        </span>
+                      </div>
+                      {icd && (
+                        <div className="mt-1.5 flex items-center gap-2">
+                          <span className="font-mono text-xs text-graphite">
+                            {icd.system} {icd.code} — {icd.display}
+                          </span>
+                          <Chip tone={icd.verified ? 'seal' : 'caution'}>
+                            {icd.verified ? 'Verified' : 'AI-suggested'}
+                          </Chip>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {report.family_history.length > 0 && (
+            <div className="border-b border-rule py-3">
               <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-graphite">
-                Diagnosis
+                Family History
               </p>
               <div className="mt-2 space-y-2">
-                {report.diagnosis.map((d, i) => (
+                {report.family_history.map((h, i) => (
                   <div key={i} className="flex items-baseline gap-2">
-                    <p className="text-[15px] text-ink">{d.text}</p>
+                    <p className="text-[15px] text-ink">{h.text}</p>
                     <span
-                      className={`font-mono text-[10px] uppercase ${CONFIDENCE_COLOR[confidenceLevel(d.confidence)]}`}
+                      className={`font-mono text-[10px] uppercase ${CONFIDENCE_COLOR[confidenceLevel(h.confidence)]}`}
                     >
-                      {Math.round(d.confidence * 100)}%
+                      {Math.round(h.confidence * 100)}%
                     </span>
                   </div>
                 ))}
@@ -521,9 +666,21 @@ export default function ReportPage() {
 
           {report.medications.length > 0 && (
             <div className="border-b border-rule py-4">
-              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-graphite">
-                Medications
-              </p>
+              <div className="mb-2 flex items-center justify-between">
+                <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-graphite">
+                  Medications
+                </p>
+                {report.medications.length > 1 && (
+                  <button
+                    onClick={handleCheckInteractions}
+                    disabled={checkingInteractions}
+                    className="font-mono text-[10px] uppercase tracking-[0.12em] text-seal hover:opacity-70 disabled:opacity-50"
+                  >
+                    {checkingInteractions ? 'Checking…' : '+ Check Interactions'}
+                  </button>
+                )}
+              </div>
+
               <div className="mt-3 space-y-4">
                 {report.medications.map((m, i) => (
                   <div key={i} className="border border-rule px-4 py-3">
@@ -536,6 +693,37 @@ export default function ReportPage() {
                   </div>
                 ))}
               </div>
+
+              {report.interaction_warnings.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  {report.interaction_warnings.map((w, i) => (
+                    <div
+                      key={i}
+                      className={`border-l-2 px-4 py-3 ${
+                        w.severity === 'high'
+                          ? 'border-flag bg-flag/5'
+                          : 'border-caution bg-caution/5'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Chip tone={w.severity === 'high' ? 'flag' : 'caution'}>
+                          {w.severity === 'high' ? 'High risk' : 'Moderate risk'}
+                        </Chip>
+                        <span className="font-mono text-xs text-ink">
+                          {w.drug_a} + {w.drug_b}
+                        </span>
+                      </div>
+                      <p className="mt-1.5 text-sm text-graphite">{w.description}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {interactionsChecked && report.interaction_warnings.length === 0 && (
+                <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.14em] text-seal">
+                  No known interactions found in the curated table
+                </p>
+              )}
             </div>
           )}
 
@@ -563,6 +751,12 @@ export default function ReportPage() {
                 >
                   View Patient Card
                 </Button>
+                <button
+                  onClick={() => navigate(`/app/sessions/${sessionId}/referral`)}
+                  className="border border-rule px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-graphite transition-colors hover:bg-wash"
+                >
+                  Referral Summary
+                </button>
                 <button
                   onClick={handleExportFhir}
                   className="border border-rule px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-graphite transition-colors hover:bg-wash"

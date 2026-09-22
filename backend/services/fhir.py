@@ -48,11 +48,23 @@ def _encounter_resource(session: Session, patient_id: str) -> dict:
 
 
 def _condition_resources(report: Report, patient_id: str, encounter_id: str) -> list[dict]:
-    return [
-        {
+    icd_by_text = {c.diagnosis_text: c for c in report.icd_codes}
+
+    resources = []
+    for i, d in enumerate(report.diagnosis):
+        icd = icd_by_text.get(d.text)
+        code_field = (
+            {
+                "coding": [{"system": "http://hl7.org/fhir/sid/icd-10-cm", "code": icd.code, "display": icd.display}],
+                "text": d.text,
+            }
+            if icd
+            else {"text": d.text}
+        )
+        resources.append({
             "resourceType": "Condition",
             "id": f"{report.id}-condition-{i}",
-            "code": {"text": d.text},
+            "code": code_field,
             "subject": {"reference": f"Patient/{patient_id}"},
             "encounter": {"reference": f"Encounter/{encounter_id}"},
             "extension": [
@@ -61,9 +73,8 @@ def _condition_resources(report: Report, patient_id: str, encounter_id: str) -> 
                     "valueDecimal": d.confidence,
                 }
             ],
-        }
-        for i, d in enumerate(report.diagnosis)
-    ]
+        })
+    return resources
 
 
 def _observation_resources(report: Report, patient_id: str, encounter_id: str) -> list[dict]:

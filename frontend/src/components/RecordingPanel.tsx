@@ -2,6 +2,7 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from './ui'
+import { api } from '../lib/api'
 
 const WS_URL = (sessionId: string) =>
   `ws://localhost:8000/ws/session/${sessionId}`
@@ -103,12 +104,30 @@ export function RecordingPanel({ sessionId }: { sessionId: string }) {
     navigate(`/app/sessions/${sessionId}/report`)
   }
 
+  async function discardConsultation() {
+    if (!window.confirm('Discard this consultation? This cannot be undone.')) return
+
+    wsRef.current?.send('stop')
+    wsRef.current?.close()
+    processorRef.current?.disconnect()
+    audioCtxRef.current?.close()
+    streamRef.current?.getTracks().forEach((track) => track.stop())
+    if (timerRef.current) window.clearInterval(timerRef.current)
+    setRecording(false)
+
+    try {
+      await api(`/api/sessions/${sessionId}`, { method: 'DELETE' })
+    } catch {
+      // Session may already be gone — proceed regardless.
+    }
+    navigate('/app/patients')
+  }
+
   const mm = String(Math.floor(elapsed / 60)).padStart(2, '0')
   const ss = String(elapsed % 60).padStart(2, '0')
 
   return (
     <div className="border border-rule bg-white">
-      {/* Header band — matches CaseSheet's metadata strip */}
       <div className="flex items-center justify-between border-b border-rule bg-wash px-7 py-3">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-graphite">
           Live Transcript
@@ -122,12 +141,22 @@ export function RecordingPanel({ sessionId }: { sessionId: string }) {
       </div>
 
       <div className="px-7 py-7">
-        <Button
-          onClick={recording ? stopRecording : startRecording}
-          variant={recording ? 'quiet' : 'primary'}
-        >
-          {recording ? 'Stop Recording' : 'Start Recording'}
-        </Button>
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <Button
+              onClick={recording ? stopRecording : startRecording}
+              variant={recording ? 'quiet' : 'primary'}
+            >
+              {recording ? 'Stop Recording' : 'Start Recording'}
+            </Button>
+          </div>
+          <button
+            onClick={discardConsultation}
+            className="shrink-0 border border-flag px-4 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-flag transition-colors hover:bg-flag hover:text-paper"
+          >
+            Discard
+          </button>
+        </div>
 
         <div className="mt-7 min-h-[120px] space-y-3 border-t border-rule pt-6">
           {finalLines.length === 0 && !partialText && (

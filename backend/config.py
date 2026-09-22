@@ -37,5 +37,8 @@ class Settings(BaseSettings):
     use_mock: bool = True
     cache_llm_responses: bool = True
 
+    smtp_email: str = ""
+    smtp_app_password: str = ""
+
 
 settings = Settings()

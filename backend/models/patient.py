@@ -16,6 +16,7 @@ class PatientCreate(BaseModel):
     age: int = Field(ge=0, le=130)
     gender: Gender
     phone: str | None = None
+    email: str | None = None
     abha_id: str | None = None          # optional, never validated by us
     preferred_language: Language = Language.ENGLISH
 
@@ -25,6 +26,7 @@ class PatientUpdate(BaseModel):
     age: int | None = Field(default=None, ge=0, le=130)
     gender: Gender | None = None
     phone: str | None = None
+    email: str | None = None
     abha_id: str | None = None
     preferred_language: Language | None = None
 
@@ -36,6 +38,7 @@ class Patient(BaseModel):
     age: int
     gender: Gender
     phone: str | None = None
+    email: str | None = None
     abha_id: str | None = None
     preferred_language: Language = Language.ENGLISH
     created_at: datetime = Field(default_factory=utcnow)
