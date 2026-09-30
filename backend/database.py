@@ -30,6 +30,10 @@ def doctors():
     return get_db()["doctors"]
 
 
+def receptionists():
+    return get_db()["receptionists"]
+
+
 def patients():
     return get_db()["patients"]
 
@@ -57,6 +61,7 @@ def referral_summaries():
 async def ensure_indexes() -> None:
     """Create indexes. Idempotent — safe to run on every startup."""
     await doctors().create_index("email", unique=True)
+    await receptionists().create_index("email", unique=True)
     await patients().create_index([("doctor_id", 1), ("full_name", 1)])
     await patients().create_index([("doctor_id", 1), ("phone", 1)])
     await sessions().create_index([("doctor_id", 1), ("encounter_start", -1)])

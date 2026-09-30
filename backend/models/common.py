@@ -32,6 +32,15 @@ class AuthProvider(str, Enum):
     EMAIL = "email"
 
 
+class Role(str, Enum):
+    """Account type. Carried in the JWT so a single decode tells you which
+    collection to look the account up in and which routes it may call.
+    """
+
+    DOCTOR = "doctor"
+    RECEPTIONIST = "receptionist"
+
+
 class VerificationStatus(str, Enum):
     """Doctor credentials are COLLECTED, never automatically verified.
 

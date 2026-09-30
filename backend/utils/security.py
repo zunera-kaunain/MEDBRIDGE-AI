@@ -31,16 +31,21 @@ def verify_password(password: str, hashed: str) -> bool:
         return False
 
 
-def create_access_token(doctor_id: str) -> str:
-    """Issue a JWT whose subject is the doctor's id.
+def create_access_token(subject_id: str, role: str = "doctor") -> str:
+    """Issue a JWT whose subject is the account's id, tagged with its role.
 
-    Every downstream route derives doctor_id from this token, never from
-    the request body. A client must not be able to read or write another
-    doctor's records by passing a different id.
+    Every downstream route derives the account id (and now the role) from
+    this token, never from the request body. A client must not be able to
+    read or write another account's records by passing a different id, and
+    must not be able to claim a role it wasn't issued.
+
+    role defaults to "doctor" so every existing call site (and every token
+    already issued before roles existed) keeps working unchanged.
     """
     now = datetime.now(timezone.utc)
     payload = {
-        "sub": doctor_id,
+        "sub": subject_id,
+        "role": role,
         "iat": now,
         "exp": now + timedelta(hours=settings.jwt_expire_hours),
     }
@@ -48,11 +53,36 @@ def create_access_token(doctor_id: str) -> str:
 
 
 def decode_access_token(token: str) -> str | None:
-    """Return the doctor id, or None if the token is invalid or expired."""
+    """Return the account id, or None if the token is invalid or expired.
+
+    Kept exactly as before for every caller that only ever dealt with
+    doctors (get_current_doctor, the WebSocket endpoint) — they don't need
+    the role, since a receptionist id will simply never match a doctor_id
+    anywhere those callers check ownership.
+    """
+    payload = _decode_payload(token)
+    if payload is None:
+        return None
+    return payload.get("sub")
+
+
+def decode_access_token_role(token: str) -> str | None:
+    """Return the role claim, or None if the token is invalid or expired.
+
+    Tokens issued before roles existed carry no "role" claim at all — those
+    are treated as "doctor", since every account before this change was a
+    doctor.
+    """
+    payload = _decode_payload(token)
+    if payload is None:
+        return None
+    return payload.get("role", "doctor")
+
+
+def _decode_payload(token: str) -> dict | None:
     try:
-        payload = jwt.decode(
+        return jwt.decode(
             token, settings.jwt_secret, algorithms=[settings.jwt_algorithm]
         )
     except JWTError:
         return None
-    return payload.get("sub")
