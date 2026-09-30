@@ -2,10 +2,12 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from './ui'
-import { api } from '../lib/api'
+import { api, getToken } from '../lib/api'
 
-const WS_URL = (sessionId: string) =>
-  `ws://localhost:8000/ws/session/${sessionId}`
+// Browsers can't set an Authorization header on a WebSocket handshake, so
+// the same JWT used everywhere else travels as a query param here instead.
+const WS_URL = (sessionId: string, token: string) =>
+  `ws://localhost:8000/ws/session/${sessionId}?token=${encodeURIComponent(token)}`
 
 type TranscriptEvent =
   | { type: 'partial'; text: string }
@@ -31,7 +33,13 @@ export function RecordingPanel({ sessionId }: { sessionId: string }) {
     setFinalLines([])
     setElapsed(0)
 
-    const ws = new WebSocket(WS_URL(sessionId))
+    const token = getToken()
+    if (!token) {
+      console.error('Not signed in — cannot start recording.')
+      return
+    }
+
+    const ws = new WebSocket(WS_URL(sessionId, token))
     ws.binaryType = 'arraybuffer'
     wsRef.current = ws
 
@@ -44,6 +52,12 @@ export function RecordingPanel({ sessionId }: { sessionId: string }) {
         setPartialText('')
       } else if (data.type === 'error') {
         console.error('Transcription error:', data.message)
+      }
+    }
+
+    ws.onclose = (event) => {
+      if (event.code === 1008) {
+        console.error('Recording connection was rejected — please sign in again.')
       }
     }
 

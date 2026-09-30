@@ -11,12 +11,13 @@ anything held only in the browser's local state.
 import asyncio
 import json
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect, status
 
 import database as db
 from models.common import LanguagePair
 from models.session import FinalEvent
 from services import asr
+from utils.security import decode_access_token
 
 router = APIRouter()
 
@@ -25,6 +26,7 @@ router = APIRouter()
 async def session_websocket(
     websocket: WebSocket,
     session_id: str,
+    token: str = Query(...),
     language_pair: LanguagePair = LanguagePair.EN,
 ):
     """
@@ -36,7 +38,25 @@ async def session_websocket(
 
     Client sends the text message "stop" to end the session cleanly and
     flush any remaining audio as a final segment.
+
+    Browsers can't attach an Authorization header to a WebSocket handshake,
+    so the JWT travels as a query param instead (?token=...) — same token
+    issued at login, just carried differently for this one endpoint. The
+    connection is rejected, not merely closed after accepting, if the token
+    is invalid or the session doesn't belong to that doctor: rejecting
+    before accept() sends a clean handshake failure rather than a false
+    "connected" moment.
     """
+    doctor_id = decode_access_token(token)
+    if doctor_id is None:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+
+    session = await db.sessions().find_one({"id": session_id})
+    if session is None or session.get("doctor_id") != doctor_id:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+
     await websocket.accept()
 
     audio_queue: asyncio.Queue = asyncio.Queue()
