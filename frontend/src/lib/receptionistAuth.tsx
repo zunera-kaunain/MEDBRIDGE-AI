@@ -3,9 +3,13 @@
  *
  * Deliberately separate from lib/auth.tsx (the doctor context) rather than
  * merged into it — keeps the doctor flow completely untouched while this
- * is still being built out. Uses the same token storage as the doctor
- * context (api.ts's getToken/setToken/clearToken): only one role is ever
- * signed in in a given browser at a time, same as the doctor flow today.
+ * is still being built out. Uses its OWN token storage (api.ts's
+ * getReceptionistToken/setReceptionistToken/clearReceptionistToken) and
+ * every api() call here passes role: 'receptionist' — both contexts are
+ * mounted together for every page, so sharing one token key meant one
+ * context's failed session-restore would silently clear the other's valid
+ * token (see api.ts for the full story). Two separate keys means that
+ * can't happen.
  */
 
 import {
@@ -18,7 +22,12 @@ import {
   type ReactNode,
 } from 'react'
 
-import { api, clearToken, getToken, setToken } from './api'
+import {
+  api,
+  clearReceptionistToken,
+  getReceptionistToken,
+  setReceptionistToken,
+} from './api'
 import type { ReceptionistPublic, ReceptionistTokenResponse } from '../types'
 
 interface ReceptionistAuthState {
@@ -35,13 +44,13 @@ export function ReceptionistAuthProvider({ children }: { children: ReactNode }) 
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!getToken()) {
+    if (!getReceptionistToken()) {
       setLoading(false)
       return
     }
-    api<ReceptionistPublic>('/auth/receptionist/me')
+    api<ReceptionistPublic>('/auth/receptionist/me', { role: 'receptionist' })
       .then(setReceptionist)
-      .catch(() => clearToken())
+      .catch(() => clearReceptionistToken())
       .finally(() => setLoading(false))
   }, [])
 
@@ -51,12 +60,12 @@ export function ReceptionistAuthProvider({ children }: { children: ReactNode }) 
       body: { email, password },
       auth: false,
     })
-    setToken(res.access_token)
+    setReceptionistToken(res.access_token)
     setReceptionist(res.receptionist)
   }, [])
 
   const signOut = useCallback(() => {
-    clearToken()
+    clearReceptionistToken()
     setReceptionist(null)
   }, [])
 

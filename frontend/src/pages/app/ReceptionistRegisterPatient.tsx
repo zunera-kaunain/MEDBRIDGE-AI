@@ -40,7 +40,7 @@ export default function ReceptionistRegisterPatient() {
   const [registered, setRegistered] = useState<Patient | null>(null)
 
   useEffect(() => {
-    api<DoctorForRouting[]>('/api/receptionist/doctors')
+    api<DoctorForRouting[]>('/api/receptionist/doctors', { role: 'receptionist' })
       .then((rows) => {
         setDoctors(rows)
         if (rows.length > 0) setDoctorId(rows[0].id)
@@ -59,6 +59,7 @@ export default function ReceptionistRegisterPatient() {
         `/api/receptionist/suggest-doctor?chief_complaint=${encodeURIComponent(
           chiefComplaint,
         )}&age=${ageNum}`,
+        { role: 'receptionist' },
       )
       if (res.suggested_doctor_id) {
         setSuggestedId(res.suggested_doctor_id)
@@ -100,6 +101,7 @@ export default function ReceptionistRegisterPatient() {
       const patient = await api<Patient>('/api/receptionist/patients', {
         method: 'POST',
         body: payload,
+        role: 'receptionist',
       })
       setRegistered(patient)
     } catch (err) {
