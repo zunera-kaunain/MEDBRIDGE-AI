@@ -35,7 +35,25 @@ export default function ReceptionistRegisterPatient() {
   const [language, setLanguage] = useState<Language>('en')
   const [chiefComplaint, setChiefComplaint] = useState('')
   const [doctorId, setDoctorId] = useState('')
+  const [doctorQuery, setDoctorQuery] = useState('')
   const [suggestedId, setSuggestedId] = useState('')
+
+  // "Assign to doctor" is a free-text input backed by a <datalist> (same
+  // pattern as Qualification/Specialisation) — the receptionist can either
+  // pick a suggestion or type a doctor's name directly. doctorQuery is what
+  // the person sees/types; doctorId is only set once the text exactly
+  // matches one of the known doctors, so the actual submission always
+  // carries a real doctor id, never a typed string.
+  const doctorOptions = doctors.map((d) => ({
+    id: d.id,
+    label: d.full_name + (d.specialization ? ` — ${d.specialization}` : ''),
+  }))
+
+  function handleDoctorInput(value: string) {
+    setDoctorQuery(value)
+    const match = doctorOptions.find((o) => o.label.toLowerCase() === value.toLowerCase())
+    setDoctorId(match ? match.id : '')
+  }
 
   const [submitError, setSubmitError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -67,6 +85,8 @@ export default function ReceptionistRegisterPatient() {
       if (res.suggested_doctor_id) {
         setSuggestedId(res.suggested_doctor_id)
         setDoctorId(res.suggested_doctor_id)
+        const match = doctorOptions.find((o) => o.id === res.suggested_doctor_id)
+        if (match) setDoctorQuery(match.label)
       }
     } catch {
       // Suggestion is a convenience, not a requirement — the dropdown
@@ -125,6 +145,7 @@ export default function ReceptionistRegisterPatient() {
     setChiefComplaint('')
     setSuggestedId('')
     setDoctorId('')
+    setDoctorQuery('')
   }
 
 
@@ -238,23 +259,21 @@ export default function ReceptionistRegisterPatient() {
           />
 
           <div>
-            <SelectField
+            <Field
               label="Assign to doctor"
               name="doctor_id"
               required
-              value={doctorId}
-              onChange={(e) => setDoctorId(e.target.value)}
-            >
-              <option value="" disabled>
-                — Select a doctor —
-              </option>
-              {doctors.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.full_name}
-                  {d.specialization ? ` — ${d.specialization}` : ''}
-                </option>
+              placeholder="Type or choose a doctor"
+              list="doctor-options"
+              autoComplete="off"
+              value={doctorQuery}
+              onChange={(e) => handleDoctorInput(e.target.value)}
+            />
+            <datalist id="doctor-options">
+              {doctorOptions.map((o) => (
+                <option key={o.id} value={o.label} />
               ))}
-            </SelectField>
+            </datalist>
             {suggestedId && suggestedId === doctorId && (
               <div className="mt-2">
                 <Chip tone="seal">Suggested</Chip>
