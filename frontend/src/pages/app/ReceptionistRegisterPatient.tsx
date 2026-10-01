@@ -36,23 +36,33 @@ export default function ReceptionistRegisterPatient() {
   const [chiefComplaint, setChiefComplaint] = useState('')
   const [doctorId, setDoctorId] = useState('')
   const [doctorQuery, setDoctorQuery] = useState('')
+  const [showDoctorList, setShowDoctorList] = useState(false)
   const [suggestedId, setSuggestedId] = useState('')
 
-  // "Assign to doctor" is a free-text input backed by a <datalist> (same
-  // pattern as Qualification/Specialisation) — the receptionist can either
-  // pick a suggestion or type a doctor's name directly. doctorQuery is what
+  // "Assign to doctor" supports both typing and picking, but with a
+  // dropdown styled to match the rest of the app rather than the browser's
+  // native <datalist> popup (which can't be restyled). doctorQuery is what
   // the person sees/types; doctorId is only set once the text exactly
-  // matches one of the known doctors, so the actual submission always
+  // matches a known doctor OR a suggestion is clicked, so submission always
   // carries a real doctor id, never a typed string.
   const doctorOptions = doctors.map((d) => ({
     id: d.id,
     label: d.full_name + (d.specialization ? ` — ${d.specialization}` : ''),
   }))
+  const filteredDoctorOptions = doctorOptions.filter((o) =>
+    o.label.toLowerCase().includes(doctorQuery.toLowerCase()),
+  )
 
   function handleDoctorInput(value: string) {
     setDoctorQuery(value)
     const match = doctorOptions.find((o) => o.label.toLowerCase() === value.toLowerCase())
     setDoctorId(match ? match.id : '')
+  }
+
+  function selectDoctor(option: { id: string; label: string }) {
+    setDoctorQuery(option.label)
+    setDoctorId(option.id)
+    setShowDoctorList(false)
   }
 
   const [submitError, setSubmitError] = useState('')
@@ -146,6 +156,7 @@ export default function ReceptionistRegisterPatient() {
     setSuggestedId('')
     setDoctorId('')
     setDoctorQuery('')
+    setShowDoctorList(false)
   }
 
 
@@ -258,22 +269,32 @@ export default function ReceptionistRegisterPatient() {
             onBlur={handleSuggest}
           />
 
-          <div>
+          <div className="relative">
             <Field
               label="Assign to doctor"
               name="doctor_id"
               required
               placeholder="Type or choose a doctor"
-              list="doctor-options"
               autoComplete="off"
               value={doctorQuery}
               onChange={(e) => handleDoctorInput(e.target.value)}
+              onFocus={() => setShowDoctorList(true)}
+              onBlur={() => setTimeout(() => setShowDoctorList(false), 120)}
             />
-            <datalist id="doctor-options">
-              {doctorOptions.map((o) => (
-                <option key={o.id} value={o.label} />
-              ))}
-            </datalist>
+            {showDoctorList && filteredDoctorOptions.length > 0 && (
+              <div className="absolute z-10 mt-1 max-h-56 w-full overflow-auto border border-rule bg-white shadow-[0_12px_28px_-16px_rgba(22,33,28,0.45)]">
+                {filteredDoctorOptions.map((o) => (
+                  <button
+                    key={o.id}
+                    type="button"
+                    onMouseDown={() => selectDoctor(o)}
+                    className="block w-full border-b border-rule px-3 py-2 text-left text-[15px] text-slate-900 last:border-b-0 hover:bg-wash"
+                  >
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            )}
             {suggestedId && suggestedId === doctorId && (
               <div className="mt-2">
                 <Chip tone="seal">Suggested</Chip>
