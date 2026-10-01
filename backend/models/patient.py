@@ -73,6 +73,31 @@ class Patient(BaseModel):
     registered_by_receptionist_id: str | None = None
 
 
+class ReceptionistPatientSummary(BaseModel):
+    """Row shape for the receptionist's patient list — across every
+    doctor, unlike PatientSummary (one doctor's own list). Shows that a
+    consultation happened and its bare status, and whether a follow-up is
+    due — never transcript/diagnosis/medication content. See DECISIONS.md
+    on the receptionist privacy boundary.
+    """
+
+    id: str
+    short_id: str
+    full_name: str
+    age: int
+    gender: Gender
+    doctor_id: str
+    doctor_name: str | None = None
+    doctor_specialization: str | None = None
+    intake_chief_complaint: str | None = None
+    latest_session_status: str | None = None   # SessionStatus value, or None
+    next_followup_at: datetime | None = None    # soonest unsent reminder
+
+
+class ReceptionistPatientReassign(BaseModel):
+    doctor_id: str
+
+
 class PatientSummary(BaseModel):
     """Row shape for search results and the patient list."""
 

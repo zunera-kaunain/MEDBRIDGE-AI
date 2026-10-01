@@ -137,6 +137,20 @@ export interface ReceptionistPatientCreate {
   doctor_id: string
 }
 
+export interface ReceptionistPatientSummary {
+  id: string
+  short_id: string
+  full_name: string
+  age: number
+  gender: Gender
+  doctor_id: string
+  doctor_name: string | null
+  doctor_specialization: string | null
+  intake_chief_complaint: string | null
+  latest_session_status: SessionStatus | null
+  next_followup_at: string | null
+}
+
 // ---------------------------------------------------------------------------
 // Patient
 // ---------------------------------------------------------------------------
