@@ -68,6 +68,63 @@ const SPECIALIZATIONS = [
   'Dentistry',
 ]
 
+// Type-or-pick combobox styled to match the app, used in place of the
+// browser's native <datalist> popup (which can't be restyled and renders
+// as a plain black box). Clicking a suggestion or typing a value both work.
+function SuggestField({
+  label,
+  name,
+  value,
+  onChange,
+  options,
+  placeholder,
+  required,
+}: {
+  label: string
+  name: string
+  value: string
+  onChange: (value: string) => void
+  options: string[]
+  placeholder?: string
+  required?: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const filtered = options.filter((o) => o.toLowerCase().includes(value.toLowerCase()))
+
+  return (
+    <div className="relative">
+      <Field
+        label={label}
+        name={name}
+        required={required}
+        placeholder={placeholder}
+        autoComplete="off"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 120)}
+      />
+      {open && filtered.length > 0 && (
+        <div className="absolute z-10 mt-1 max-h-56 w-full overflow-auto border border-rule bg-white shadow-[0_12px_28px_-16px_rgba(22,33,28,0.45)]">
+          {filtered.map((o) => (
+            <button
+              key={o}
+              type="button"
+              onMouseDown={() => {
+                onChange(o)
+                setOpen(false)
+              }}
+              className="block w-full border-b border-rule px-3 py-2 text-left text-[15px] text-slate-900 last:border-b-0 hover:bg-wash"
+            >
+              {o}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function CompleteProfile() {
   const { saveProfile } = useAuth()
   const navigate = useNavigate()
@@ -113,40 +170,25 @@ export default function CompleteProfile() {
           {error && <ErrorNotice message={error} />}
 
           <div className="grid grid-cols-2 gap-5">
-            <Field
+            <SuggestField
               label="Qualification"
               name="qualification"
               required
               placeholder="Type or choose (e.g. MBBS)"
-              list="qualification-options"
-              autoComplete="off"
+              options={QUALIFICATIONS}
               value={form.qualification}
-              onChange={(e) => update('qualification', e.target.value)}
+              onChange={(v) => update('qualification', v)}
             />
-            <Field
+            <SuggestField
               label="Specialisation"
               name="specialization"
               required
               placeholder="Type or choose (e.g. General Medicine)"
-              list="specialization-options"
-              autoComplete="off"
+              options={SPECIALIZATIONS}
               value={form.specialization}
-              onChange={(e) => update('specialization', e.target.value)}
+              onChange={(v) => update('specialization', v)}
             />
           </div>
-
-          {/* Pick from the list or just type your own — these are
-              suggestions, not a restriction. */}
-          <datalist id="qualification-options">
-            {QUALIFICATIONS.map((q) => (
-              <option key={q} value={q} />
-            ))}
-          </datalist>
-          <datalist id="specialization-options">
-            {SPECIALIZATIONS.map((s) => (
-              <option key={s} value={s} />
-            ))}
-          </datalist>
 
           <Field
             label="Registration number"
