@@ -4,10 +4,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useReceptionistAuth } from '../../lib/receptionistAuth'
 import { Button, CaseSheet, ErrorNotice, Field } from '../../components/ui'
 
-export default function ReceptionistLogin() {
-  const { signIn } = useReceptionistAuth()
+export default function ReceptionistRegister() {
+  const { register } = useReceptionistAuth()
   const navigate = useNavigate()
 
+  const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -18,10 +19,11 @@ export default function ReceptionistLogin() {
     setError('')
     setBusy(true)
     try {
-      await signIn(email, password)
+      await register(email, password, fullName)
+      // No credential onboarding for receptionists — straight to the desk.
       navigate('/receptionist')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not sign in')
+      setError(err instanceof Error ? err.message : 'Could not create account')
     } finally {
       setBusy(false)
     }
@@ -31,24 +33,33 @@ export default function ReceptionistLogin() {
     <div className="flex min-h-screen items-center justify-center px-4 py-12">
       <CaseSheet
         eyebrow="MedBridge AI · Front Desk"
-        title="Receptionist sign in"
+        title="Create a receptionist account"
         subtitle="Register patients and route them to a doctor."
         footer={
           <>
-            New here?{' '}
-            <Link to="/receptionist/register" className="text-seal underline underline-offset-2">
-              Create an account
+            Already have an account?{' '}
+            <Link to="/receptionist/login" className="text-seal underline underline-offset-2">
+              Sign in
             </Link>
             <br />
             Doctor?{' '}
-            <Link to="/login" className="text-seal underline underline-offset-2">
-              Sign in here
+            <Link to="/register" className="text-seal underline underline-offset-2">
+              Create your account here
             </Link>
           </>
         }
       >
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && <ErrorNotice message={error} />}
+
+          <Field
+            label="Full name"
+            name="full_name"
+            required
+            placeholder="Priya Shetty"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
 
           <Field
             label="Email"
@@ -64,15 +75,17 @@ export default function ReceptionistLogin() {
             label="Password"
             name="password"
             type="password"
-            autoComplete="current-password"
+            autoComplete="new-password"
             required
+            minLength={8}
+            hint="At least 8 characters."
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
 
           <div className="pt-2">
             <Button type="submit" loading={busy}>
-              Sign in
+              Create account
             </Button>
           </div>
         </form>

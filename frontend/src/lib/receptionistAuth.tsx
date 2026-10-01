@@ -34,6 +34,7 @@ interface ReceptionistAuthState {
   receptionist: ReceptionistPublic | null
   loading: boolean
   signIn: (email: string, password: string) => Promise<void>
+  register: (email: string, password: string, fullName: string) => Promise<void>
   signOut: () => void
 }
 
@@ -64,14 +65,27 @@ export function ReceptionistAuthProvider({ children }: { children: ReactNode }) 
     setReceptionist(res.receptionist)
   }, [])
 
+  const register = useCallback(
+    async (email: string, password: string, fullName: string) => {
+      const res = await api<ReceptionistTokenResponse>('/auth/receptionist/register', {
+        method: 'POST',
+        body: { email, password, full_name: fullName },
+        auth: false,
+      })
+      setReceptionistToken(res.access_token)
+      setReceptionist(res.receptionist)
+    },
+    [],
+  )
+
   const signOut = useCallback(() => {
     clearReceptionistToken()
     setReceptionist(null)
   }, [])
 
   const value = useMemo(
-    () => ({ receptionist, loading, signIn, signOut }),
-    [receptionist, loading, signIn, signOut],
+    () => ({ receptionist, loading, signIn, register, signOut }),
+    [receptionist, loading, signIn, register, signOut],
   )
 
   return (

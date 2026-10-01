@@ -10,6 +10,7 @@ import Contact from './pages/Contact'
 import Register from './pages/auth/Register'
 import CompleteProfile from './pages/auth/CompleteProfile'
 import ReceptionistLogin from './pages/auth/ReceptionistLogin'
+import ReceptionistRegister from './pages/auth/ReceptionistRegister'
 import ReceptionistDashboard from './pages/app/ReceptionistDashboard'
 import ReceptionistRegisterPatient from './pages/app/ReceptionistRegisterPatient'
 import ReceptionistPatients from './pages/app/ReceptionistPatients'
@@ -68,6 +69,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/receptionist/login" element={<ReceptionistLogin />} />
+        <Route path="/receptionist/register" element={<ReceptionistRegister />} />
 
         <Route
           path="/receptionist"
