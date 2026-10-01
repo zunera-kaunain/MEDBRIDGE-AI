@@ -102,6 +102,23 @@ export interface TokenResponse {
 }
 
 // ---------------------------------------------------------------------------
+// Receptionist
+// ---------------------------------------------------------------------------
+
+export interface ReceptionistPublic {
+  id: string
+  email: string
+  full_name: string
+  created_at: string
+}
+
+export interface ReceptionistTokenResponse {
+  access_token: string
+  token_type: string
+  receptionist: ReceptionistPublic
+}
+
+// ---------------------------------------------------------------------------
 // Patient
 // ---------------------------------------------------------------------------
 

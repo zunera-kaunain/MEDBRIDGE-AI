@@ -2,10 +2,13 @@ import type { ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { useAuth } from './lib/auth'
+import { useReceptionistAuth } from './lib/receptionistAuth'
 import Login from './pages/auth/Login'
 import Landing from './pages/Landing'
 import Register from './pages/auth/Register'
 import CompleteProfile from './pages/auth/CompleteProfile'
+import ReceptionistLogin from './pages/auth/ReceptionistLogin'
+import ReceptionistDashboard from './pages/app/ReceptionistDashboard'
 import Dashboard from './pages/app/Dashboard'
 import Patients from './pages/app/Patients'
 import PatientDetail from './pages/app/PatientDetail'
@@ -30,6 +33,13 @@ function RequireProfile({ children }: { children: ReactNode }) {
   return <>{children}</>
 }
 
+function RequireReceptionist({ children }: { children: ReactNode }) {
+  const { receptionist, loading } = useReceptionistAuth()
+  if (loading) return <LoadingScreen />
+  if (!receptionist) return <Navigate to="/receptionist/login" replace />
+  return <>{children}</>
+}
+
 function LoadingScreen() {
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -48,6 +58,16 @@ export default function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/receptionist/login" element={<ReceptionistLogin />} />
+
+        <Route
+          path="/receptionist"
+          element={
+            <RequireReceptionist>
+              <ReceptionistDashboard />
+            </RequireReceptionist>
+          }
+        />
 
         <Route
           path="/complete-profile"

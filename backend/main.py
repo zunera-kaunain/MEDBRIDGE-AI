@@ -16,7 +16,17 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import database as db
 from config import settings
-from routers import auth, doctors, patients, sessions, reports, evaluation, patient_chat, ws
+from routers import (
+    auth,
+    doctors,
+    evaluation,
+    patient_chat,
+    patients,
+    receptionist_auth,
+    reports,
+    sessions,
+    ws,
+)
 from services import reminders as reminder_service
 
 
@@ -54,6 +64,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(receptionist_auth.router)
 app.include_router(doctors.router)
 app.include_router(patients.router)
 app.include_router(sessions.router)

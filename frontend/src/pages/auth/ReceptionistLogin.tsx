@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { useAuth } from '../../lib/auth'
+import { useReceptionistAuth } from '../../lib/receptionistAuth'
 import { Button, CaseSheet, ErrorNotice, Field } from '../../components/ui'
 
-export default function Login() {
-  const { signIn } = useAuth()
+export default function ReceptionistLogin() {
+  const { signIn } = useReceptionistAuth()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
@@ -19,7 +19,7 @@ export default function Login() {
     setBusy(true)
     try {
       await signIn(email, password)
-      navigate('/app')
+      navigate('/receptionist')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not sign in')
     } finally {
@@ -30,18 +30,13 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-12">
       <CaseSheet
-        eyebrow="MedBridge AI · OPD Documentation"
-        title="Sign in"
-        subtitle="Consultation records are tied to your account."
+        eyebrow="MedBridge AI · Front Desk"
+        title="Receptionist sign in"
+        subtitle="Register patients and route them to a doctor."
         footer={
           <>
-            No account yet?{' '}
-            <Link to="/register" className="text-seal underline underline-offset-2">
-              Create one
-            </Link>
-            <br />
-            Front desk staff?{' '}
-            <Link to="/receptionist/login" className="text-seal underline underline-offset-2">
+            Doctor?{' '}
+            <Link to="/login" className="text-seal underline underline-offset-2">
               Sign in here
             </Link>
           </>
