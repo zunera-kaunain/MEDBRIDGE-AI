@@ -13,7 +13,7 @@ from services import email as email_service
 from fastapi.responses import Response
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel
 
 import database as db
@@ -24,6 +24,7 @@ from models.patient import Patient
 from models.report import PatientCard, Report
 from models.session import Session
 from models.report import PatientCard, ReferralCreate, ReferralSummary, Report, ReportUpdate
+from services import auto_send
 from services import card as card_service
 from services import nlp
 from services import fhir
@@ -231,6 +232,7 @@ async def check_drug_interactions(
 @router.post("/{session_id}/report/confirm", response_model=Report)
 async def confirm_report(
     session_id: str,
+    background_tasks: BackgroundTasks,
     current: Doctor = Depends(get_current_doctor),
 ) -> Report:
     """Lock the report as confirmed. Irreversible — no unconfirm endpoint.
@@ -238,7 +240,9 @@ async def confirm_report(
     This is the doctor's sign-off. Once confirmed, the report is immutable,
     the patient card becomes generatable, and a follow-up reminder is
     scheduled if the report has a parseable follow-up duration and the
-    patient has an email on file.
+    patient has an email on file. The confirmed report PDF is also
+    auto-sent to the patient (email + a WhatsApp heads-up), in the
+    background — see services/auto_send.py.
     """
     session = await _owned_session(session_id, current.id)  # ownership check
 
@@ -268,6 +272,10 @@ async def confirm_report(
     patient = await _owned_patient(session.patient_id, current.id)
     await reminder_service.schedule_followup_reminder(confirmed_report, patient)
 
+    background_tasks.add_task(
+        auto_send.send_report_to_patient, confirmed_report, patient, current
+    )
+
     return confirmed_report
 
 
@@ -275,6 +283,7 @@ async def confirm_report(
 async def create_referral(
     session_id: str,
     payload: ReferralCreate,
+    background_tasks: BackgroundTasks,
     current: Doctor = Depends(get_current_doctor),
 ) -> ReferralSummary:
     """Generate (or regenerate) the referral summary for a session.
@@ -284,8 +293,14 @@ async def create_referral(
     in the payload is pre-filled from the report where possible: `reason`
     from the extracted followup.referral text, the rest snapshotted from
     the confirmed report's diagnosis/ICD codes/medications.
+
+    Auto-sends the full referral PDF to the patient in the background. The
+    receptionist does NOT get this call's output — she sees a trimmed,
+    logistics-only view via GET /api/receptionist/referrals (no diagnosis,
+    ICD codes, or medications), since this document carries full clinical
+    content and her access is deliberately scoped below that.
     """
-    await _owned_session(session_id, current.id)  # ownership check
+    session = await _owned_session(session_id, current.id)  # ownership check
 
     report_doc = await db.reports().find_one({"session_id": session_id})
     if report_doc is None:
@@ -338,6 +353,12 @@ async def create_referral(
         {"$set": referral.model_dump()},
         upsert=True,
     )
+
+    patient = await _owned_patient(session.patient_id, current.id)
+    background_tasks.add_task(
+        auto_send.send_referral_to_patient, referral, patient, current
+    )
+
     return referral
 
 
@@ -443,12 +464,14 @@ async def export_referral_pdf(
 async def generate_card(
     session_id: str,
     language: Language,
+    background_tasks: BackgroundTasks,
     current: Doctor = Depends(get_current_doctor),
 ) -> PatientCard:
     """Generate the patient explanation card, in the given language.
 
     Only permitted once the report is confirmed — a patient must never see
-    clinical content the doctor has not signed off on.
+    clinical content the doctor has not signed off on. Auto-sends the card
+    PDF to the patient (email + WhatsApp heads-up) in the background.
     """
     session = await _owned_session(session_id, current.id)
 
@@ -475,6 +498,9 @@ async def generate_card(
         {"$set": card.model_dump()},
         upsert=True,
     )
+
+    background_tasks.add_task(auto_send.send_card_to_patient, card, patient)
+
     return card
 
 

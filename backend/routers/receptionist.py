@@ -19,6 +19,7 @@ from models.patient import (
     ReceptionistPatientSummary,
 )
 from models.receptionist import Receptionist
+from models.report import ReceptionistReferralNotice
 from services.routing import suggest_doctor
 
 router = APIRouter(prefix="/api/receptionist", tags=["receptionist"])
@@ -234,3 +235,71 @@ async def reassign_patient(
     )
     updated = await db.patients().find_one({"id": patient_id})
     return Patient(**updated)
+
+
+@router.get("/referrals", response_model=list[ReceptionistReferralNotice])
+async def list_referrals(
+    limit: int = Query(50, le=200),
+    current: Receptionist = Depends(get_current_receptionist),
+) -> list[ReceptionistReferralNotice]:
+    """Recent referrals, across every doctor, logistics-only.
+
+    This is the one place a referral reaches the receptionist at all. The
+    patient always gets the full referral letter (diagnosis, ICD codes,
+    medications) by email the moment the doctor generates it — see
+    auto_send.send_referral_to_patient in routers/reports.py. This
+    endpoint deliberately strips all of that down to specialist_name,
+    department, and reason, because her job here is to tell the patient
+    where to go next, not to read their clinical record. If a referral
+    row has neither a specialist_name nor a department, there is nothing
+    actionable for her to say, so it's left out.
+
+    Built with the same plain-query + Python-join pattern as /patients:
+    referral_summaries -> sessions (for patient_id) -> patients (for the
+    display name/short_id). ReferralSummary itself has no patient_id, only
+    session_id, hence the two-step join.
+    """
+    referral_rows = (
+        await db.referral_summaries()
+        .find({})
+        .sort("generated_at", -1)
+        .to_list(length=limit * 3)  # over-fetch since some rows get filtered below
+    )
+    if not referral_rows:
+        return []
+
+    session_ids = list({r["session_id"] for r in referral_rows})
+    session_rows = await db.sessions().find({"id": {"$in": session_ids}}).to_list(
+        length=len(session_ids)
+    )
+    patient_id_by_session = {s["id"]: s["patient_id"] for s in session_rows}
+
+    patient_ids = list(set(patient_id_by_session.values()))
+    patient_rows = await db.patients().find({"id": {"$in": patient_ids}}).to_list(
+        length=len(patient_ids)
+    )
+    patients_by_id = {p["id"]: p for p in patient_rows}
+
+    notices: list[ReceptionistReferralNotice] = []
+    for r in referral_rows:
+        if not r.get("specialist_name") and not r.get("department"):
+            continue  # nothing actionable for her to relay
+        patient_id = patient_id_by_session.get(r["session_id"])
+        patient = patients_by_id.get(patient_id) if patient_id else None
+        if patient is None:
+            continue
+        notices.append(
+            ReceptionistReferralNotice(
+                id=r["id"],
+                patient_id=patient["id"],
+                patient_name=patient["full_name"],
+                patient_short_id=patient["short_id"],
+                specialist_name=r.get("specialist_name"),
+                department=r.get("department"),
+                reason=r["reason"],
+                generated_at=r["generated_at"],
+            )
+        )
+        if len(notices) >= limit:
+            break
+    return notices

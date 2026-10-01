@@ -121,6 +121,26 @@ class ReferralSummary(BaseModel):
     generated_at: datetime = Field(default_factory=utcnow)
 
 
+class ReceptionistReferralNotice(BaseModel):
+    """Logistics-only view of a referral, for the receptionist's worklist.
+
+    Deliberately omits chief_complaint, diagnosis, icd_codes, and
+    medications from ReferralSummary — she needs to know WHERE to guide
+    the patient next (specialist/department) and WHY in one short phrase,
+    never the clinical detail behind it. See the privacy-boundary note on
+    GET /api/receptionist/referrals in routers/receptionist.py.
+    """
+
+    id: str
+    patient_id: str
+    patient_name: str
+    patient_short_id: str
+    specialist_name: str | None = None
+    department: str | None = None
+    reason: str
+    generated_at: datetime
+
+
 class ReportUpdate(BaseModel):
     """Doctor edits. Every field optional — this is a PATCH.
 

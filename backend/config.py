@@ -40,5 +40,11 @@ class Settings(BaseSettings):
     smtp_email: str = ""
     smtp_app_password: str = ""
 
+    # WhatsApp (Twilio sandbox) — all optional; whatsapp.py no-ops with a
+    # log line if these aren't set, same spirit as the SMTP guard above.
+    twilio_account_sid: str = ""
+    twilio_auth_token: str = ""
+    twilio_whatsapp_number: str = ""   # Twilio's sandbox number, "whatsapp:+1415..."
+
 
 settings = Settings()
