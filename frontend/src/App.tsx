@@ -9,6 +9,7 @@ import Register from './pages/auth/Register'
 import CompleteProfile from './pages/auth/CompleteProfile'
 import ReceptionistLogin from './pages/auth/ReceptionistLogin'
 import ReceptionistDashboard from './pages/app/ReceptionistDashboard'
+import ReceptionistRegisterPatient from './pages/app/ReceptionistRegisterPatient'
 import Dashboard from './pages/app/Dashboard'
 import Patients from './pages/app/Patients'
 import PatientDetail from './pages/app/PatientDetail'
@@ -65,6 +66,14 @@ export default function App() {
           element={
             <RequireReceptionist>
               <ReceptionistDashboard />
+            </RequireReceptionist>
+          }
+        />
+        <Route
+          path="/receptionist/patients/new"
+          element={
+            <RequireReceptionist>
+              <ReceptionistRegisterPatient />
             </RequireReceptionist>
           }
         />

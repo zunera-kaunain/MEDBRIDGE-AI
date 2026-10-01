@@ -22,6 +22,7 @@ from routers import (
     evaluation,
     patient_chat,
     patients,
+    receptionist,
     receptionist_auth,
     reports,
     sessions,
@@ -65,6 +66,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(receptionist_auth.router)
+app.include_router(receptionist.router)
 app.include_router(doctors.router)
 app.include_router(patients.router)
 app.include_router(sessions.router)

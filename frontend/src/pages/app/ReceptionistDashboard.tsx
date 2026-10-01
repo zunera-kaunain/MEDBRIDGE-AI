@@ -1,13 +1,13 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { useReceptionistAuth } from '../../lib/receptionistAuth'
 
 /**
- * Placeholder landing page for a signed-in receptionist.
+ * Landing page for a signed-in receptionist.
  *
- * This exists only to prove the receptionist login works end-to-end.
- * The real screen — patient registration + doctor routing by chief
- * complaint and age — is the next piece of work, not built yet.
+ * Still just a hub, not a patient list — viewing/searching/reassigning
+ * existing patients across doctors isn't built yet. Registering a new one
+ * is.
  */
 export default function ReceptionistDashboard() {
   const { receptionist, signOut } = useReceptionistAuth()
@@ -27,15 +27,25 @@ export default function ReceptionistDashboard() {
         Signed in as {receptionist?.full_name}
       </h1>
       <p className="mt-3 text-slate-600">
-        Patient registration and doctor routing aren't built yet — this page
-        just confirms receptionist login is working.
+        Viewing and reassigning existing patients isn't built yet — for now
+        you can register a new one and route them to a doctor.
       </p>
-      <button
-        onClick={handleSignOut}
-        className="mt-8 border border-slate-300 px-5 py-2.5 font-mono text-[12px] uppercase tracking-[0.1em] text-slate-900 hover:bg-slate-50"
+
+      <Link
+        to="/receptionist/patients/new"
+        className="mt-8 inline-block bg-seal px-5 py-2.5 font-mono text-[12px] uppercase tracking-[0.1em] text-paper hover:opacity-90"
       >
-        Sign out
-      </button>
+        Register a patient
+      </Link>
+
+      <div>
+        <button
+          onClick={handleSignOut}
+          className="mt-4 border border-slate-300 px-5 py-2.5 font-mono text-[12px] uppercase tracking-[0.1em] text-slate-900 hover:bg-slate-50"
+        >
+          Sign out
+        </button>
+      </div>
     </div>
   )
 }

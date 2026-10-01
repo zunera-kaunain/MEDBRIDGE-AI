@@ -78,6 +78,18 @@ class DoctorPublic(BaseModel):
     created_at: datetime
 
 
+class DoctorForRouting(BaseModel):
+    """What a receptionist sees to route a patient — name and specialty
+    only. No email, no registration number, no verification status —
+    she picks a doctor, she doesn't audit their credentials.
+    """
+
+    id: str
+    full_name: str
+    specialization: str | None
+    qualification: str | None
+
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"

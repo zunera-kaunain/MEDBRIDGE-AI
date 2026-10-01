@@ -118,6 +118,25 @@ export interface ReceptionistTokenResponse {
   receptionist: ReceptionistPublic
 }
 
+export interface DoctorForRouting {
+  id: string
+  full_name: string
+  specialization: string | null
+  qualification: string | null
+}
+
+export interface ReceptionistPatientCreate {
+  full_name: string
+  age: number
+  gender: Gender
+  phone: string
+  email: string
+  abha_id?: string
+  preferred_language: Language
+  chief_complaint?: string
+  doctor_id: string
+}
+
 // ---------------------------------------------------------------------------
 // Patient
 // ---------------------------------------------------------------------------
