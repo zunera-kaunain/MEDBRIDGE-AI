@@ -25,22 +25,20 @@ export default function ReceptionistReferrals() {
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-12">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-seal">
-            Front desk
-          </p>
-          <h1 className="mt-1 font-display text-2xl font-medium text-slate-900">Referrals</h1>
-          <p className="mt-1 text-sm text-graphite">
-            Where to guide each patient next — no clinical details, just where they're headed.
-          </p>
-        </div>
-        <button
-          onClick={() => navigate(-1)}
-          className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
-        >
-          ← Back
-        </button>
+      <button
+        onClick={() => navigate(-1)}
+        className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
+      >
+        ← Back
+      </button>
+      <div className="mt-3">
+        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-seal">
+          Front desk
+        </p>
+        <h1 className="mt-1 font-display text-2xl font-medium text-slate-900">Referrals</h1>
+        <p className="mt-1 text-sm text-graphite">
+          Where to guide each patient next — no clinical details, just where they're headed.
+        </p>
       </div>
 
       {loadError && (

@@ -117,7 +117,7 @@ export default function CompleteProfile() {
               label="Qualification"
               name="qualification"
               required
-              placeholder="MBBS, MD"
+              placeholder="Type or choose (e.g. MBBS)"
               list="qualification-options"
               autoComplete="off"
               value={form.qualification}
@@ -127,7 +127,7 @@ export default function CompleteProfile() {
               label="Specialisation"
               name="specialization"
               required
-              placeholder="General Medicine"
+              placeholder="Type or choose (e.g. General Medicine)"
               list="specialization-options"
               autoComplete="off"
               value={form.specialization}

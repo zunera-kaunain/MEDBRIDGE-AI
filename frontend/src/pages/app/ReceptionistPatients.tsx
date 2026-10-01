@@ -76,7 +76,13 @@ export default function ReceptionistPatients() {
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-12">
-      <div className="flex items-center justify-between">
+      <button
+        onClick={() => navigate(-1)}
+        className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
+      >
+        ← Back
+      </button>
+      <div className="mt-3 flex items-center justify-between">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-seal">
             Front desk
@@ -84,12 +90,6 @@ export default function ReceptionistPatients() {
           <h1 className="mt-1 font-display text-2xl font-medium text-slate-900">Patients</h1>
         </div>
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
-          >
-            ← Back
-          </button>
           <Link
             to="/receptionist/referrals"
             className="font-mono text-[11px] uppercase tracking-[0.1em] text-seal hover:opacity-80"

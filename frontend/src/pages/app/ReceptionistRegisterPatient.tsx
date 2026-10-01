@@ -147,18 +147,19 @@ export default function ReceptionistRegisterPatient() {
 
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
-      <button
-        onClick={() => navigate(-1)}
-        className="absolute left-6 top-6 font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
-      >
-        ← Back
-      </button>
-      <CaseSheet
-        eyebrow="Front desk"
-        title="Register a patient"
-        subtitle="Add a chief complaint (optional) after age for an automatic doctor suggestion."
-      >
+    <div className="flex min-h-screen items-center justify-center px-4 py-12">
+      <div className="w-full max-w-lg">
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-2 font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
+        >
+          ← Back
+        </button>
+        <CaseSheet
+          eyebrow="Front desk"
+          title="Register a patient"
+          subtitle="Add a chief complaint (optional) after age for an automatic doctor suggestion."
+        >
         <form onSubmit={handleSubmit} className="space-y-5">
           {submitError && <ErrorNotice message={submitError} />}
           {doctorsError && <ErrorNotice message={doctorsError} />}
@@ -267,7 +268,8 @@ export default function ReceptionistRegisterPatient() {
             </Button>
           </div>
         </form>
-      </CaseSheet>
+        </CaseSheet>
+      </div>
     </div>
   )
 }
