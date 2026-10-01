@@ -7,7 +7,7 @@
  */
 
 import type { ReactNode } from 'react'
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 
 import { useAuth } from '../lib/auth'
 
@@ -22,7 +22,13 @@ export function AppLayout({ children }: { children: ReactNode }) {
       <header className="border-b border-rule bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-baseline gap-8">
-            <span className="font-display text-lg font-medium">MedBridge AI</span>
+            <Link
+              to="/app/profile"
+              className="font-display text-lg font-medium text-ink transition-opacity hover:opacity-75"
+              title="Your profile"
+            >
+              MedBridge AI
+            </Link>
             <nav className="flex gap-6">
               <NavLink
                 to="/app"
@@ -60,18 +66,6 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 }
               >
                 Evaluation
-              </NavLink>
-              <NavLink
-                to="/app/profile"
-                className={({ isActive }) =>
-                  `${navItem} ${
-                    isActive
-                      ? 'border-seal text-ink'
-                      : 'border-transparent text-graphite hover:text-ink'
-                  }`
-                }
-              >
-                Profile
               </NavLink>
             </nav>
           </div>
