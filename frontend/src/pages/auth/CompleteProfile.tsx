@@ -21,6 +21,53 @@ const COUNCILS = [
   'National Medical Commission',
 ]
 
+// Suggestions only — both fields stay free-text inputs (via <datalist>), so
+// a qualification/specialization not on this list can still be typed in
+// directly. Specialization labels are worded to match the substring
+// keywords services/routing.py looks for (e.g. "Cardiology" contains
+// "cardiolog"), so picking one of these keeps the receptionist's
+// doctor-suggestion feature working correctly.
+const QUALIFICATIONS = [
+  'MBBS',
+  'MD',
+  'MS',
+  'DNB',
+  'DM',
+  'MCh',
+  'BDS',
+  'MDS',
+  'BAMS',
+  'BHMS',
+  'BUMS',
+  'PG Diploma',
+]
+
+const SPECIALIZATIONS = [
+  'General Medicine',
+  'General Surgery',
+  'Paediatrics',
+  'Obstetrics & Gynaecology',
+  'Orthopaedics',
+  'Cardiology',
+  'Dermatology',
+  'ENT (Otolaryngology)',
+  'Ophthalmology',
+  'Psychiatry',
+  'Neurology',
+  'Nephrology',
+  'Gastroenterology',
+  'Pulmonology',
+  'Endocrinology',
+  'Urology',
+  'Oncology',
+  'Radiology',
+  'Anaesthesiology',
+  'Emergency Medicine',
+  'Family Medicine',
+  'Pathology',
+  'Dentistry',
+]
+
 export default function CompleteProfile() {
   const { saveProfile } = useAuth()
   const navigate = useNavigate()
@@ -71,6 +118,8 @@ export default function CompleteProfile() {
               name="qualification"
               required
               placeholder="MBBS, MD"
+              list="qualification-options"
+              autoComplete="off"
               value={form.qualification}
               onChange={(e) => update('qualification', e.target.value)}
             />
@@ -79,10 +128,25 @@ export default function CompleteProfile() {
               name="specialization"
               required
               placeholder="General Medicine"
+              list="specialization-options"
+              autoComplete="off"
               value={form.specialization}
               onChange={(e) => update('specialization', e.target.value)}
             />
           </div>
+
+          {/* Pick from the list or just type your own — these are
+              suggestions, not a restriction. */}
+          <datalist id="qualification-options">
+            {QUALIFICATIONS.map((q) => (
+              <option key={q} value={q} />
+            ))}
+          </datalist>
+          <datalist id="specialization-options">
+            {SPECIALIZATIONS.map((s) => (
+              <option key={s} value={s} />
+            ))}
+          </datalist>
 
           <Field
             label="Registration number"

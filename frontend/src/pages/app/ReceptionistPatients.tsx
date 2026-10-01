@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { api } from '../../lib/api'
 import { Chip, ErrorNotice, Field } from '../../components/ui'
@@ -22,6 +22,7 @@ const STATUS_TONE: Record<SessionStatus, 'seal' | 'caution' | 'flag' | 'graphite
 }
 
 export default function ReceptionistPatients() {
+  const navigate = useNavigate()
   const [patients, setPatients] = useState<ReceptionistPatientSummary[]>([])
   const [doctors, setDoctors] = useState<DoctorForRouting[]>([])
   const [q, setQ] = useState('')
@@ -83,6 +84,12 @@ export default function ReceptionistPatients() {
           <h1 className="mt-1 font-display text-2xl font-medium text-slate-900">Patients</h1>
         </div>
         <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
+          >
+            ← Back
+          </button>
           <Link
             to="/receptionist/referrals"
             className="font-mono text-[11px] uppercase tracking-[0.1em] text-seal hover:opacity-80"

@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { api } from '../../lib/api'
 import { Button, CaseSheet, Chip, ErrorNotice, Field, SelectField } from '../../components/ui'
@@ -22,6 +23,7 @@ const LANGUAGES: { value: Language; label: string }[] = [
 
 
 export default function ReceptionistRegisterPatient() {
+  const navigate = useNavigate()
   const [doctors, setDoctors] = useState<DoctorForRouting[]>([])
   const [doctorsError, setDoctorsError] = useState('')
 
@@ -40,11 +42,12 @@ export default function ReceptionistRegisterPatient() {
   const [registered, setRegistered] = useState<Patient | null>(null)
 
   useEffect(() => {
+    // Deliberately does NOT preselect a doctor — an unselected dropdown is
+    // the honest default. The ONLY way doctorId gets set before the
+    // receptionist picks manually is a real suggestion from
+    // /suggest-doctor, driven by an actual chief complaint + age.
     api<DoctorForRouting[]>('/api/receptionist/doctors', { role: 'receptionist' })
-      .then((rows) => {
-        setDoctors(rows)
-        if (rows.length > 0) setDoctorId(rows[0].id)
-      })
+      .then(setDoctors)
       .catch((err) =>
         setDoctorsError(err instanceof Error ? err.message : 'Could not load doctors'),
       )
@@ -121,7 +124,7 @@ export default function ReceptionistRegisterPatient() {
     setLanguage('en')
     setChiefComplaint('')
     setSuggestedId('')
-    if (doctors.length > 0) setDoctorId(doctors[0].id)
+    setDoctorId('')
   }
 
 
@@ -144,7 +147,13 @@ export default function ReceptionistRegisterPatient() {
 
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12">
+    <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
+      <button
+        onClick={() => navigate(-1)}
+        className="absolute left-6 top-6 font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
+      >
+        ← Back
+      </button>
       <CaseSheet
         eyebrow="Front desk"
         title="Register a patient"
@@ -235,6 +244,9 @@ export default function ReceptionistRegisterPatient() {
               value={doctorId}
               onChange={(e) => setDoctorId(e.target.value)}
             >
+              <option value="" disabled>
+                — Select a doctor —
+              </option>
               {doctors.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.full_name}

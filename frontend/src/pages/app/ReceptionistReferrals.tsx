@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { api } from '../../lib/api'
 import { ErrorNotice } from '../../components/ui'
 import type { ReceptionistReferralNotice } from '../../types'
 
 export default function ReceptionistReferrals() {
+  const navigate = useNavigate()
   const [referrals, setReferrals] = useState<ReceptionistReferralNotice[]>([])
   const [loadError, setLoadError] = useState('')
 
@@ -34,12 +35,12 @@ export default function ReceptionistReferrals() {
             Where to guide each patient next — no clinical details, just where they're headed.
           </p>
         </div>
-        <Link
-          to="/receptionist/patients"
-          className="font-mono text-[11px] uppercase tracking-[0.1em] text-seal hover:opacity-80"
+        <button
+          onClick={() => navigate(-1)}
+          className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
         >
-          Back to patients
-        </Link>
+          ← Back
+        </button>
       </div>
 
       {loadError && (
