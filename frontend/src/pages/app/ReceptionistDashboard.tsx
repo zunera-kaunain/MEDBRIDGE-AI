@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import { api } from '../../lib/api'
 import { useReceptionistAuth } from '../../lib/receptionistAuth'
+import { PublicNav } from '../../components/PublicNav'
 import type { ReceptionistPatientSummary, ReceptionistReferralNotice } from '../../types'
 
 // Small line-art icons, same thin-stroke style used on the doctor side's
@@ -56,8 +57,7 @@ function initials(name: string) {
  * patient and viewing/reassigning existing ones.
  */
 export default function ReceptionistDashboard() {
-  const { receptionist, signOut } = useReceptionistAuth()
-  const navigate = useNavigate()
+  const { receptionist } = useReceptionistAuth()
 
   const [patientCount, setPatientCount] = useState<number | null>(null)
   const [referralCount, setReferralCount] = useState<number | null>(null)
@@ -71,48 +71,11 @@ export default function ReceptionistDashboard() {
       .catch(() => setReferralCount(null))
   }, [])
 
-  function handleSignOut() {
-    signOut()
-    navigate('/receptionist/login')
-  }
-
   if (!receptionist) return null
 
   return (
     <div className="min-h-screen bg-paper">
-      <div className="border-b border-rule bg-white">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-4">
-          <div className="flex items-baseline gap-8">
-            <Link
-              to="/receptionist/profile"
-              className="font-display text-lg font-medium text-ink transition-opacity hover:opacity-75"
-              title="Your profile"
-            >
-              MedBridge AI
-            </Link>
-            <nav className="flex gap-6">
-              <Link
-                to="/about"
-                className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
-              >
-                About
-              </Link>
-              <Link
-                to="/contact"
-                className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
-              >
-                Contact
-              </Link>
-            </nav>
-          </div>
-          <button
-            onClick={handleSignOut}
-            className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
-          >
-            Sign out
-          </button>
-        </div>
-      </div>
+      <PublicNav />
 
       <div className="mx-auto max-w-5xl px-6 py-12">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-seal">
