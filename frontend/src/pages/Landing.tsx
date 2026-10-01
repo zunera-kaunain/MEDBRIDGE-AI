@@ -1,28 +1,12 @@
 import { Link } from 'react-router-dom'
 
+import { PublicNav } from '../components/PublicNav'
+import { PublicFooter } from '../components/PublicFooter'
+
 export default function Landing() {
   return (
     <div className="min-h-screen bg-paper">
-      {/* Nav */}
-      <div className="border-b border-rule bg-paper">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
-          <span className="font-display text-xl font-medium text-ink">MedBridge AI</span>
-          <div className="flex items-center gap-6">
-            <Link
-              to="/login"
-              className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
-            >
-              Sign In
-            </Link>
-            <Link
-              to="/register"
-              className="border border-seal px-4 py-2 font-mono text-[11px] uppercase tracking-[0.14em] text-seal transition-colors hover:bg-seal hover:text-paper"
-            >
-              Get Started
-            </Link>
-          </div>
-        </div>
-      </div>
+      <PublicNav />
 
       {/* Hero — split layout: copy left, visual proof right */}
       <div className="mx-auto max-w-6xl px-6 py-20">
@@ -215,6 +199,8 @@ export default function Landing() {
           Get Started
         </Link>
       </div>
+
+      <PublicFooter />
     </div>
   )
 }

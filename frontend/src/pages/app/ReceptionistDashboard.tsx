@@ -47,6 +47,12 @@ export default function ReceptionistDashboard() {
         >
           Referrals
         </Link>
+        <Link
+          to="/receptionist/profile"
+          className="inline-block border border-slate-300 px-5 py-2.5 font-mono text-[12px] uppercase tracking-[0.1em] text-slate-900 hover:bg-slate-50"
+        >
+          Your profile
+        </Link>
       </div>
 
       <div>

@@ -61,6 +61,18 @@ export function AppLayout({ children }: { children: ReactNode }) {
               >
                 Evaluation
               </NavLink>
+              <NavLink
+                to="/app/profile"
+                className={({ isActive }) =>
+                  `${navItem} ${
+                    isActive
+                      ? 'border-seal text-ink'
+                      : 'border-transparent text-graphite hover:text-ink'
+                  }`
+                }
+              >
+                Profile
+              </NavLink>
             </nav>
           </div>
 

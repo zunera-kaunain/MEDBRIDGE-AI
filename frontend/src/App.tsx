@@ -5,6 +5,8 @@ import { useAuth } from './lib/auth'
 import { useReceptionistAuth } from './lib/receptionistAuth'
 import Login from './pages/auth/Login'
 import Landing from './pages/Landing'
+import About from './pages/About'
+import Contact from './pages/Contact'
 import Register from './pages/auth/Register'
 import CompleteProfile from './pages/auth/CompleteProfile'
 import ReceptionistLogin from './pages/auth/ReceptionistLogin'
@@ -12,12 +14,14 @@ import ReceptionistDashboard from './pages/app/ReceptionistDashboard'
 import ReceptionistRegisterPatient from './pages/app/ReceptionistRegisterPatient'
 import ReceptionistPatients from './pages/app/ReceptionistPatients'
 import ReceptionistReferrals from './pages/app/ReceptionistReferrals'
+import ReceptionistProfile from './pages/app/ReceptionistProfile'
 import Dashboard from './pages/app/Dashboard'
 import Patients from './pages/app/Patients'
 import PatientDetail from './pages/app/PatientDetail'
 import ReportPage from './pages/app/Report'
 import PatientCardPage from './pages/app/PatientCard'
 import ReferralPage from './pages/app/Referral'
+import ProfilePage from './pages/app/Profile'
 import { DoodleBackground } from './components/DoodleBackground'
 import EvaluationPage from './pages/app/Evaluation'
 
@@ -59,6 +63,8 @@ export default function App() {
       <DoodleBackground />
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/receptionist/login" element={<ReceptionistLogin />} />
@@ -95,6 +101,14 @@ export default function App() {
             </RequireReceptionist>
           }
         />
+        <Route
+          path="/receptionist/profile"
+          element={
+            <RequireReceptionist>
+              <ReceptionistProfile />
+            </RequireReceptionist>
+          }
+        />
 
         <Route
           path="/complete-profile"
@@ -126,6 +140,14 @@ export default function App() {
           element={
             <RequireProfile>
               <EvaluationPage />
+            </RequireProfile>
+          }
+        />
+        <Route
+          path="/app/profile"
+          element={
+            <RequireProfile>
+              <ProfilePage />
             </RequireProfile>
           }
         />
