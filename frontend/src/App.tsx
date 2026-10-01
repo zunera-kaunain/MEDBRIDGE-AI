@@ -11,6 +11,7 @@ import ReceptionistLogin from './pages/auth/ReceptionistLogin'
 import ReceptionistDashboard from './pages/app/ReceptionistDashboard'
 import ReceptionistRegisterPatient from './pages/app/ReceptionistRegisterPatient'
 import ReceptionistPatients from './pages/app/ReceptionistPatients'
+import ReceptionistReferrals from './pages/app/ReceptionistReferrals'
 import Dashboard from './pages/app/Dashboard'
 import Patients from './pages/app/Patients'
 import PatientDetail from './pages/app/PatientDetail'
@@ -83,6 +84,14 @@ export default function App() {
           element={
             <RequireReceptionist>
               <ReceptionistPatients />
+            </RequireReceptionist>
+          }
+        />
+        <Route
+          path="/receptionist/referrals"
+          element={
+            <RequireReceptionist>
+              <ReceptionistReferrals />
             </RequireReceptionist>
           }
         />

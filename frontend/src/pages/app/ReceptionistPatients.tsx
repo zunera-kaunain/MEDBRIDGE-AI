@@ -82,12 +82,20 @@ export default function ReceptionistPatients() {
           </p>
           <h1 className="mt-1 font-display text-2xl font-medium text-slate-900">Patients</h1>
         </div>
-        <Link
-          to="/receptionist/patients/new"
-          className="bg-seal px-4 py-2 font-mono text-[11px] uppercase tracking-[0.1em] text-paper hover:opacity-90"
-        >
-          Register a patient
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link
+            to="/receptionist/referrals"
+            className="font-mono text-[11px] uppercase tracking-[0.1em] text-seal hover:opacity-80"
+          >
+            Referrals
+          </Link>
+          <Link
+            to="/receptionist/patients/new"
+            className="bg-seal px-4 py-2 font-mono text-[11px] uppercase tracking-[0.1em] text-paper hover:opacity-90"
+          >
+            Register a patient
+          </Link>
+        </div>
       </div>
 
       <div className="mt-6 max-w-sm">

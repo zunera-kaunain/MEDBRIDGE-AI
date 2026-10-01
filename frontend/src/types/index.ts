@@ -356,6 +356,20 @@ export interface ReferralSummary {
   generated_at: string
 }
 
+/** Logistics-only referral view for the receptionist — deliberately has
+ * none of ReferralSummary's clinical fields (diagnosis/icd_codes/
+ * medications). See backend/models/report.py ReceptionistReferralNotice. */
+export interface ReceptionistReferralNotice {
+  id: string
+  patient_id: string
+  patient_name: string
+  patient_short_id: string
+  specialist_name: string | null
+  department: string | null
+  reason: string
+  generated_at: string
+}
+
 // ---------------------------------------------------------------------------
 // Patient card
 // ---------------------------------------------------------------------------
