@@ -35,6 +35,18 @@ async def get_current_doctor(
     if doctor_id is None:
         raise unauthorized
 
+    # Explicit role check, not just reliance on the doctors-collection lookup
+    # below missing a receptionist id. That lookup-miss happened to work as
+    # a boundary, but it was an accident of data layout, not an intentional
+    # guard — this makes the guard the actual reason, so the boundary holds
+    # even if the two account types ever end up in the same collection or
+    # share an id space. Old doctor tokens (issued before the role claim
+    # existed) decode to role "doctor" by default, so this changes nothing
+    # for them.
+    role = decode_access_token_role(credentials.credentials)
+    if role != "doctor":
+        raise unauthorized
+
     doc = await db.doctors().find_one({"id": doctor_id})
     if doc is None:
         raise unauthorized
