@@ -47,8 +47,8 @@ export function PublicNav() {
           </div>
           <button
             onClick={() => {
+              navigate('/', { replace: true })
               receptionistSignOut()
-              navigate('/receptionist/login')
             }}
             className="whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
           >
@@ -85,8 +85,8 @@ export function PublicNav() {
           </div>
           <button
             onClick={() => {
+              navigate('/', { replace: true })
               doctorSignOut()
-              navigate('/login')
             }}
             className="whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
           >

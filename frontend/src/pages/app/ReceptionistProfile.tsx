@@ -9,8 +9,8 @@ export default function ReceptionistProfile() {
   const { receptionist, signOut } = useReceptionistAuth()
 
   function handleSignOut() {
+    navigate('/', { replace: true })
     signOut()
-    navigate('/receptionist/login')
   }
 
   if (!receptionist) return null

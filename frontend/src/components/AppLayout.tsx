@@ -7,7 +7,7 @@
  */
 
 import type { ReactNode } from 'react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../lib/auth'
 import { BackButton } from './BackButton'
@@ -28,6 +28,7 @@ export function AppLayout({
 }) {
   const { doctor, signOut } = useAuth()
   const { pathname } = useLocation()
+  const navigate = useNavigate()
 
   return (
     <div className="relative z-10 min-h-screen">
@@ -87,7 +88,10 @@ export function AppLayout({
               {doctor?.registration_number}
             </span>
             <button
-              onClick={signOut}
+              onClick={() => {
+                navigate('/', { replace: true })
+                signOut()
+              }}
               className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
             >
               Sign out
