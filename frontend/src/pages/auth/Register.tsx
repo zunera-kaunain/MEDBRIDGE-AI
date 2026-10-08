@@ -3,9 +3,12 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../lib/auth'
 import { Button, CaseSheet, ErrorNotice, Field } from '../../components/ui'
+import { BackButton } from '../../components/BackButton'
+import { ConsentCheckbox } from '../../components/ConsentCheckbox'
+import { GoogleSignInButton } from '../../components/GoogleSignInButton'
 
 export default function Register() {
-  const { register } = useAuth()
+  const { register, signInWithGoogle } = useAuth()
   const navigate = useNavigate()
 
   const [fullName, setFullName] = useState('')
@@ -13,6 +16,7 @@ export default function Register() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [agreed, setAgreed] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -31,7 +35,10 @@ export default function Register() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12">
+    <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
+      <div className="absolute left-6 top-6 z-10">
+        <BackButton fallback="/" />
+      </div>
       <CaseSheet
         eyebrow="MedBridge AI · New practitioner"
         title="Create your account"
@@ -41,6 +48,11 @@ export default function Register() {
             Already registered?{' '}
             <Link to="/login" className="text-seal underline underline-offset-2">
               Sign in
+            </Link>
+            <br />
+            Front desk staff?{' '}
+            <Link to="/receptionist/register" className="text-seal underline underline-offset-2">
+              Create a receptionist account
             </Link>
           </>
         }
@@ -79,12 +91,23 @@ export default function Register() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
+          <ConsentCheckbox checked={agreed} onChange={setAgreed} />
+
           <div className="pt-2">
-            <Button type="submit" loading={busy}>
+            <Button type="submit" loading={busy} disabled={!agreed}>
               Create account
             </Button>
           </div>
         </form>
+
+        <GoogleSignInButton
+          onError={setError}
+          blockedMessage={agreed ? undefined : 'Tick the box to agree to the Terms and Privacy Policy first'}
+          onCredential={async (credential) => {
+            const d = await signInWithGoogle(credential)
+            navigate(d.profile_complete ? '/app' : '/complete-profile')
+          }}
+        />
       </CaseSheet>
     </div>
   )

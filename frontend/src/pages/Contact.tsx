@@ -1,14 +1,16 @@
 import { PublicNav } from '../components/PublicNav'
+import { BackButton } from '../components/BackButton'
 import { PublicFooter } from '../components/PublicFooter'
 
 const EMAIL = 'medbridgeai@gmail.com'
 
 export default function Contact() {
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen">
       <PublicNav />
 
       <div className="mx-auto max-w-2xl px-6 py-20">
+        <BackButton fallback="/" className="mb-8" />
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-graphite">
           Contact
         </p>
@@ -21,7 +23,7 @@ export default function Contact() {
           back to you.
         </p>
 
-        <div className="mt-10 border border-rule bg-white px-7 py-7">
+        <div className="mt-10 rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-7 py-7">
           <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-graphite">
             Email
           </p>

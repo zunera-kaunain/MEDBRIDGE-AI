@@ -23,8 +23,15 @@ import ReportPage from './pages/app/Report'
 import PatientCardPage from './pages/app/PatientCard'
 import ReferralPage from './pages/app/Referral'
 import ProfilePage from './pages/app/Profile'
+import ActivityPage from './pages/app/Activity'
 import { DoodleBackground } from './components/DoodleBackground'
 import EvaluationPage from './pages/app/Evaluation'
+import ForgotPassword from './pages/auth/ForgotPassword'
+import ResetPassword from './pages/auth/ResetPassword'
+import Privacy from './pages/Privacy'
+import Terms from './pages/Terms'
+import NotFound from './pages/NotFound'
+import { usePageTitle } from './hooks/usePageTitle'
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { doctor, loading } = useAuth()
@@ -59,13 +66,25 @@ function LoadingScreen() {
 }
 
 export default function App() {
+  usePageTitle()
   return (
     <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[200] focus:border focus:border-seal focus:bg-white focus:px-4 focus:py-2 focus:font-mono focus:text-[11px] focus:uppercase focus:tracking-[0.14em] focus:text-seal"
+      >
+        Skip to content
+      </a>
       <DoodleBackground />
+      <main id="main-content" tabIndex={-1} className="outline-none">
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/receptionist/login" element={<ReceptionistLogin />} />
@@ -154,6 +173,14 @@ export default function App() {
           }
         />
         <Route
+          path="/app/activity"
+          element={
+            <RequireProfile>
+              <ActivityPage />
+            </RequireProfile>
+          }
+        />
+        <Route
           path="/app/patients/:id"
           element={
             <RequireProfile>
@@ -186,8 +213,9 @@ export default function App() {
           }
         />
 
-        <Route path="*" element={<Navigate to="/app" replace />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
+      </main>
     </>
   )
 }

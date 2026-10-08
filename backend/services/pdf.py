@@ -127,7 +127,7 @@ def build_report_pdf(report: Report, patient: Patient, doctor: Doctor) -> bytes:
     story.append(_rule())
     story.append(Spacer(1, 4 * mm))
 
-    story.append(Paragraph("CONSULTATION REPORT", styles["doc_title"]))
+    story.append(Paragraph("CONSULTATION CASE SHEET", styles["doc_title"]))
     story.append(Spacer(1, 3 * mm))
 
     # --- Patient / meta strip ------------------------------------------

@@ -20,6 +20,18 @@ export function PublicFooter() {
           >
             Contact
           </Link>
+          <Link
+            to="/privacy"
+            className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
+          >
+            Privacy
+          </Link>
+          <Link
+            to="/terms"
+            className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
+          >
+            Terms
+          </Link>
           <a
             href="mailto:medbridgeai@gmail.com"
             className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"

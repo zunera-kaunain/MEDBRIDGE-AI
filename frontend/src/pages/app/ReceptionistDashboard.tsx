@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
 import { useReceptionistAuth } from '../../lib/receptionistAuth'
 import { PublicNav } from '../../components/PublicNav'
+import { useToast } from '../../components/Toast'
+import { BackButton } from '../../components/BackButton'
 import type { ReceptionistPatientSummary, ReceptionistReferralNotice } from '../../types'
 
 // Small line-art icons, same thin-stroke style used on the doctor side's
@@ -58,32 +60,47 @@ function initials(name: string) {
  */
 export default function ReceptionistDashboard() {
   const { receptionist } = useReceptionistAuth()
+  const toast = useToast()
 
   const [patientCount, setPatientCount] = useState<number | null>(null)
   const [referralCount, setReferralCount] = useState<number | null>(null)
 
   useEffect(() => {
+    let warned = false
+    const fail = () => {
+      if (warned) return
+      warned = true
+      toast.error("Couldn't load your counts. Check your connection and refresh the page.")
+    }
     api<ReceptionistPatientSummary[]>('/api/receptionist/patients', { role: 'receptionist' })
       .then((rows) => setPatientCount(rows.length))
-      .catch(() => setPatientCount(null))
+      .catch(() => {
+        setPatientCount(null)
+        fail()
+      })
     api<ReceptionistReferralNotice[]>('/api/receptionist/referrals', { role: 'receptionist' })
       .then((rows) => setReferralCount(rows.length))
-      .catch(() => setReferralCount(null))
+      .catch(() => {
+        setReferralCount(null)
+        fail()
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (!receptionist) return null
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen">
       <PublicNav />
 
       <div className="mx-auto max-w-5xl px-6 py-12">
+        <BackButton fallback="/" className="mb-6 block" />
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-seal">
           Front desk
         </p>
 
         {/* ID card header — same visual language as the doctor's profile */}
-        <div className="relative mt-3 overflow-hidden border border-rule bg-white shadow-[0_1px_0_var(--color-rule),0_20px_48px_-28px_rgba(22,33,28,0.35)]">
+        <div className="relative mt-3 overflow-hidden rounded-2xl border border-rule/80 bg-white/90 shadow-[0_1px_0_var(--color-rule),0_20px_48px_-28px_rgba(22,33,28,0.35)]">
           <div className="border-b border-rule bg-wash px-7 py-3">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-graphite">
               Front desk ID
@@ -104,7 +121,7 @@ export default function ReceptionistDashboard() {
 
         {/* Stat tiles */}
         <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div className="border border-rule bg-white px-6 py-5">
+          <div className="rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-6 py-5">
             <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-graphite">
               Patients registered
             </p>
@@ -112,7 +129,7 @@ export default function ReceptionistDashboard() {
               {patientCount ?? '—'}
             </p>
           </div>
-          <div className="border border-rule bg-white px-6 py-5">
+          <div className="rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-6 py-5">
             <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-graphite">
               Referrals logged
             </p>
@@ -129,7 +146,7 @@ export default function ReceptionistDashboard() {
         <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-3">
           <Link
             to="/receptionist/patients/new"
-            className="border border-rule bg-white px-6 py-6 transition-colors hover:border-seal"
+            className="rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-6 py-6 transition-colors hover:border-seal"
           >
             <IconPersonPlus className="h-7 w-7 text-seal" />
             <p className="mt-4 font-display text-lg font-medium text-ink">
@@ -141,7 +158,7 @@ export default function ReceptionistDashboard() {
           </Link>
           <Link
             to="/receptionist/patients"
-            className="border border-rule bg-white px-6 py-6 transition-colors hover:border-seal"
+            className="rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-6 py-6 transition-colors hover:border-seal"
           >
             <IconList className="h-7 w-7 text-seal" />
             <p className="mt-4 font-display text-lg font-medium text-ink">View patients</p>
@@ -151,7 +168,7 @@ export default function ReceptionistDashboard() {
           </Link>
           <Link
             to="/receptionist/referrals"
-            className="border border-rule bg-white px-6 py-6 transition-colors hover:border-seal"
+            className="rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-6 py-6 transition-colors hover:border-seal"
           >
             <IconCompass className="h-7 w-7 text-seal" />
             <p className="mt-4 font-display text-lg font-medium text-ink">Referrals</p>

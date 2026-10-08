@@ -23,17 +23,17 @@ export function PublicNav() {
 
   if (receptionist) {
     return (
-      <div className="border-b border-rule bg-white">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-5">
-          <div className="flex items-baseline gap-8">
+      <div className="border-b border-rule/70 bg-white/75 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-4 sm:px-6 sm:py-5">
+          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2 sm:gap-x-8">
             <Link
               to="/receptionist/profile"
-              className="font-display text-xl font-medium text-ink transition-opacity hover:opacity-75"
+              className="whitespace-nowrap font-display text-xl font-medium text-ink transition-opacity hover:opacity-75"
               title="Your profile"
             >
               MedBridge AI
             </Link>
-            <nav className="flex items-center gap-6">
+            <nav className="flex items-center gap-4 sm:gap-6">
               <Link to="/receptionist" className={navItemClass(location.pathname === '/receptionist')}>
                 Front desk
               </Link>
@@ -50,7 +50,7 @@ export function PublicNav() {
               receptionistSignOut()
               navigate('/receptionist/login')
             }}
-            className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
+            className="whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
           >
             Sign out
           </button>
@@ -61,17 +61,17 @@ export function PublicNav() {
 
   if (doctor) {
     return (
-      <div className="border-b border-rule bg-white">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-5">
-          <div className="flex items-baseline gap-8">
+      <div className="border-b border-rule/70 bg-white/75 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-4 sm:px-6 sm:py-5">
+          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2 sm:gap-x-8">
             <Link
               to="/app/profile"
-              className="font-display text-xl font-medium text-ink transition-opacity hover:opacity-75"
+              className="whitespace-nowrap font-display text-xl font-medium text-ink transition-opacity hover:opacity-75"
               title="Your profile"
             >
               MedBridge AI
             </Link>
-            <nav className="flex items-center gap-6">
+            <nav className="flex items-center gap-4 sm:gap-6">
               <Link to="/app" className={navItemClass(location.pathname === '/app')}>
                 Today
               </Link>
@@ -88,7 +88,7 @@ export function PublicNav() {
               doctorSignOut()
               navigate('/login')
             }}
-            className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
+            className="whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
           >
             Sign out
           </button>
@@ -99,13 +99,13 @@ export function PublicNav() {
 
   // Signed-out visitor — the marketing nav.
   return (
-    <div className="border-b border-rule bg-paper">
-      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-5">
+    <div className="sm:sticky sm:top-0 z-20 border-b border-rule/70 bg-paper/75 backdrop-blur-md">
+      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-4 sm:px-6 sm:py-5">
         <Link to="/" className="font-display text-xl font-medium text-ink">
           MedBridge AI
         </Link>
         <div className="flex flex-wrap items-center gap-6">
-          <nav className="flex items-center gap-6">
+          <nav className="flex items-center gap-4 sm:gap-6">
             <Link to="/" className={navItemClass(location.pathname === '/')}>
               Home
             </Link>
@@ -125,7 +125,7 @@ export function PublicNav() {
           </Link>
           <Link
             to="/register"
-            className="border border-seal px-4 py-2 font-mono text-[11px] uppercase tracking-[0.14em] text-seal transition-colors hover:bg-seal hover:text-paper"
+            className="rounded-lg border border-seal px-4 py-2 font-mono text-[11px] uppercase tracking-[0.14em] text-seal transition-colors hover:bg-seal hover:text-paper"
           >
             Get Started
           </Link>

@@ -78,7 +78,7 @@ async def generate_report(
     if existing and existing.get("confirmed"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Report is confirmed and cannot be regenerated",
+            detail="Case sheet is confirmed and cannot be regenerated",
         )
 
     await db.sessions().update_one(
@@ -120,7 +120,7 @@ async def get_report(
     doc = await db.reports().find_one({"session_id": session_id})
     if doc is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Report not generated yet"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Case sheet not generated yet"
         )
     return Report(**doc)
 
@@ -138,12 +138,12 @@ async def update_report(
     existing = await db.reports().find_one({"session_id": session_id})
     if existing is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Report not generated yet"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Case sheet not generated yet"
         )
     if existing.get("confirmed"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Report is confirmed and cannot be edited",
+            detail="Case sheet is confirmed and cannot be edited",
         )
 
     updates = {k: v for k, v in payload.model_dump(exclude_unset=True).items() if v is not None}
@@ -185,7 +185,7 @@ async def generate_icd_codes(
     doc = await db.reports().find_one({"session_id": session_id})
     if doc is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Report not generated yet"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Case sheet not generated yet"
         )
     report = Report(**doc)
 
@@ -213,7 +213,7 @@ async def check_drug_interactions(
     doc = await db.reports().find_one({"session_id": session_id})
     if doc is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Report not generated yet"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Case sheet not generated yet"
         )
     report = Report(**doc)
 
@@ -249,7 +249,7 @@ async def confirm_report(
     doc = await db.reports().find_one({"session_id": session_id})
     if doc is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Report not generated yet"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Case sheet not generated yet"
         )
     if doc.get("confirmed"):
         return Report(**doc)  # already confirmed — idempotent, not an error
@@ -306,14 +306,14 @@ async def create_referral(
     if report_doc is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Generate the report before the referral summary",
+            detail="Generate the case sheet before the referral summary",
         )
     report = Report(**report_doc)
 
     if not report.confirmed:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Confirm the report before generating the referral summary",
+            detail="Confirm the case sheet before generating the referral summary",
         )
 
     reason = payload.reason
@@ -479,14 +479,14 @@ async def generate_card(
     if report_doc is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Generate the report before the patient card",
+            detail="Generate the case sheet before the patient card",
         )
     report = Report(**report_doc)
 
     if not report.confirmed:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Confirm the report before generating the patient card",
+            detail="Confirm the case sheet before generating the patient card",
         )
 
     patient = await _owned_patient(session.patient_id, current.id)
@@ -573,14 +573,14 @@ async def export_fhir(
     report_doc = await db.reports().find_one({"session_id": session_id})
     if report_doc is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Report not generated yet"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Case sheet not generated yet"
         )
     report = Report(**report_doc)
 
     if not report.confirmed:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Report must be confirmed before FHIR export",
+            detail="Case sheet must be confirmed before FHIR export",
         )
 
     patient = await _owned_patient(session.patient_id, current.id)
@@ -598,14 +598,14 @@ async def export_pdf(
     report_doc = await db.reports().find_one({"session_id": session_id})
     if report_doc is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Report not generated yet"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Case sheet not generated yet"
         )
     report = Report(**report_doc)
 
     if not report.confirmed:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Report must be confirmed before PDF export",
+            detail="Case sheet must be confirmed before PDF export",
         )
 
     patient = await _owned_patient(session.patient_id, current.id)
@@ -616,7 +616,7 @@ async def export_pdf(
         content=pdf_bytes,
         media_type="application/pdf",
         headers={
-            "Content-Disposition": f'attachment; filename="report-{patient.short_id}.pdf"'
+            "Content-Disposition": f'attachment; filename="case-sheet-{patient.short_id}.pdf"'
         },
     )
 

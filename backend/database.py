@@ -34,6 +34,14 @@ def receptionists():
     return get_db()["receptionists"]
 
 
+def password_resets():
+    return get_db()["password_resets"]
+
+
+def audit_logs():
+    return get_db()["audit_logs"]
+
+
 def patients():
     return get_db()["patients"]
 
@@ -62,6 +70,11 @@ async def ensure_indexes() -> None:
     """Create indexes. Idempotent — safe to run on every startup."""
     await doctors().create_index("email", unique=True)
     await receptionists().create_index("email", unique=True)
+    await password_resets().create_index("token_hash", unique=True)
+    # Mongo deletes expired reset records on its own once expires_at passes.
+    await password_resets().create_index("expires_at", expireAfterSeconds=0)
+    await audit_logs().create_index([("actor_id", 1), ("ts", -1)])
+    await audit_logs().create_index([("ts", -1)])
     await patients().create_index([("doctor_id", 1), ("full_name", 1)])
     await patients().create_index([("doctor_id", 1), ("phone", 1)])
     await sessions().create_index([("doctor_id", 1), ("encounter_start", -1)])

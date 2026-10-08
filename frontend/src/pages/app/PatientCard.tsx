@@ -192,7 +192,7 @@ export default function PatientCardPage() {
   }
 
   return (
-    <AppLayout>
+    <AppLayout back="none">
       {patientId && (
         <button
           onClick={() => navigate(`/app/patients/${patientId}`)}
@@ -247,7 +247,7 @@ export default function PatientCardPage() {
           </div>
         </div>
       ) : (
-        <div className="mt-8 border border-rule bg-white px-7 py-7">
+        <div className="mt-8 rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-7 py-7">
           <p className="text-[15px] text-ink">{card.greeting}</p>
 
           <div className="mt-6 border-t border-rule pt-5">

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 
 import { useAuth } from '../../lib/auth'
 import { AppLayout } from '../../components/AppLayout'
+import { DeleteAccountSection } from '../../components/DeleteAccountSection'
 import { Stamp } from '../../components/ui'
 
 // Small line-art icons, same thin-stroke style as the doodle background —
@@ -67,12 +68,12 @@ const STATUS_NOTE: Record<string, { border: string; bg: string; body: string }> 
   pending: {
     border: 'border-caution',
     bg: 'bg-[#f3ecd9]',
-    body: "These details appear on every report you generate, but they aren't checked against the Indian Medical Register — that's why the stamp above still reads verification pending.",
+    body: "These details appear on every case sheet you generate, but they aren't checked against the Indian Medical Register — that's why the stamp above still reads verification pending.",
   },
   verified: {
     border: 'border-seal',
     bg: 'bg-[#e4ece8]',
-    body: 'These details have been verified and appear on every report you generate.',
+    body: 'These details have been verified and appear on every case sheet you generate.',
   },
   rejected: {
     border: 'border-flag',
@@ -99,7 +100,7 @@ export default function Profile() {
       </p>
 
       {/* Practitioner ID card — the signature visual for this page */}
-      <div className="relative mt-3 overflow-hidden border border-rule bg-white shadow-[0_1px_0_var(--color-rule),0_20px_48px_-28px_rgba(22,33,28,0.35)]">
+      <div className="relative mt-3 overflow-hidden rounded-2xl border border-rule/80 bg-white/90 shadow-[0_1px_0_var(--color-rule),0_20px_48px_-28px_rgba(22,33,28,0.35)]">
         <div className="border-b border-rule bg-wash px-7 py-3">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-graphite">
             Practitioner ID
@@ -132,7 +133,7 @@ export default function Profile() {
 
       {/* Detail cards */}
       <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <div className="border border-rule bg-white px-6 py-6">
+        <div className="rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-6 py-6">
           <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-graphite">
             Practice
           </p>
@@ -160,7 +161,7 @@ export default function Profile() {
           </dl>
         </div>
 
-        <div className="border border-rule bg-white px-6 py-6">
+        <div className="rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-6 py-6">
           <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-graphite">
             Account
           </p>
@@ -191,14 +192,22 @@ export default function Profile() {
         {note.body}
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 flex flex-wrap gap-3">
         <Link
           to="/complete-profile"
           className="inline-block border border-seal px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-seal transition-colors hover:bg-seal hover:text-paper"
         >
           Edit details
         </Link>
+        <Link
+          to="/app/activity"
+          className="inline-block border border-rule px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-graphite transition-colors hover:text-ink"
+        >
+          Account activity
+        </Link>
       </div>
+
+      <DeleteAccountSection role="doctor" />
     </AppLayout>
   )
 }

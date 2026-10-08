@@ -21,7 +21,7 @@ import {
   type ReactNode,
 } from 'react'
 
-import { api, clearToken, getToken, setToken } from './api'
+import { ApiError, api, clearToken, getToken, setSessionNotice, setToken } from './api'
 import type { DoctorProfileInput, DoctorPublic, TokenResponse } from '../types'
 
 interface AuthState {
@@ -33,6 +33,7 @@ interface AuthState {
     password: string,
     fullName: string,
   ) => Promise<void>
+  signInWithGoogle: (credential: string) => Promise<DoctorPublic>
   saveProfile: (profile: DoctorProfileInput) => Promise<void>
   signOut: () => void
 }
@@ -52,7 +53,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     api<DoctorPublic>('/auth/me')
       .then(setDoctor)
-      .catch(() => clearToken())
+      .catch((err) => {
+        clearToken()
+        if (err instanceof ApiError && err.status === 401) setSessionNotice()
+      })
       .finally(() => setLoading(false))
   }, [])
 
@@ -79,6 +83,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   )
 
+  const signInWithGoogle = useCallback(async (credential: string) => {
+    const res = await api<TokenResponse>('/auth/google', {
+      method: 'POST',
+      body: { credential, role: 'doctor' },
+      auth: false,
+    })
+    setToken(res.access_token)
+    setDoctor(res.doctor)
+    return res.doctor
+  }, [])
+
   const saveProfile = useCallback(async (profile: DoctorProfileInput) => {
     const updated = await api<DoctorPublic>('/api/doctor/profile', {
       method: 'POST',
@@ -93,8 +108,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => ({ doctor, loading, signIn, register, saveProfile, signOut }),
-    [doctor, loading, signIn, register, saveProfile, signOut],
+    () => ({ doctor, loading, signIn, register, signInWithGoogle, saveProfile, signOut }),
+    [doctor, loading, signIn, register, signInWithGoogle, saveProfile, signOut],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

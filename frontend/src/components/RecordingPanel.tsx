@@ -6,8 +6,17 @@ import { api, getToken } from '../lib/api'
 
 // Browsers can't set an Authorization header on a WebSocket handshake, so
 // the same JWT used everywhere else travels as a query param here instead.
-const WS_URL = (sessionId: string, token: string) =>
-  `ws://localhost:8000/ws/session/${sessionId}?token=${encodeURIComponent(token)}`
+//
+// In development the backend is on port 8000 next to the Vite dev server. In
+// a deployed build FastAPI serves the page itself, so the socket goes to the
+// same host over wss:// (needed behind an HTTPS tunnel).
+const WS_URL = (sessionId: string, token: string) => {
+  const host = import.meta.env.DEV
+    ? `${window.location.hostname}:8000`
+    : window.location.host
+  const scheme = !import.meta.env.DEV && window.location.protocol === 'https:' ? 'wss' : 'ws'
+  return `${scheme}://${host}/ws/session/${sessionId}?token=${encodeURIComponent(token)}`
+}
 
 type TranscriptEvent =
   | { type: 'partial'; text: string }
@@ -141,7 +150,7 @@ export function RecordingPanel({ sessionId }: { sessionId: string }) {
   const ss = String(elapsed % 60).padStart(2, '0')
 
   return (
-    <div className="border border-rule bg-white">
+    <div className="rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden">
       <div className="flex items-center justify-between border-b border-rule bg-wash px-7 py-3">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-graphite">
           Live Transcript

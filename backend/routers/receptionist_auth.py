@@ -20,6 +20,7 @@ from models.receptionist import (
     ReceptionistRegister,
     ReceptionistTokenResponse,
 )
+from utils.rate_limit import check_rate_limit, rate_limit
 from utils.security import create_access_token, hash_password, verify_password
 
 router = APIRouter(prefix="/auth/receptionist", tags=["receptionist-auth"])
@@ -29,7 +30,12 @@ def _to_public(receptionist: Receptionist) -> ReceptionistPublic:
     return ReceptionistPublic(**receptionist.model_dump())
 
 
-@router.post("/register", response_model=ReceptionistTokenResponse, status_code=201)
+@router.post(
+    "/register",
+    response_model=ReceptionistTokenResponse,
+    status_code=201,
+    dependencies=[Depends(rate_limit("register", 10, 3600))],
+)
 async def register(payload: ReceptionistRegister) -> ReceptionistTokenResponse:
     try:
         hashed = hash_password(payload.password)
@@ -57,8 +63,13 @@ async def register(payload: ReceptionistRegister) -> ReceptionistTokenResponse:
     )
 
 
-@router.post("/login", response_model=ReceptionistTokenResponse)
+@router.post(
+    "/login",
+    response_model=ReceptionistTokenResponse,
+    dependencies=[Depends(rate_limit("login", 15, 60))],
+)
 async def login(payload: ReceptionistLogin) -> ReceptionistTokenResponse:
+    check_rate_limit(f"login:receptionist:{payload.email.lower()}", 8, 900)
     doc = await db.receptionists().find_one({"email": payload.email.lower()})
 
     # Same error for unknown email and wrong password, same reasoning as

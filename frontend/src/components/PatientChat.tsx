@@ -42,7 +42,7 @@ export function PatientChat({ patientId }: { patientId: string }) {
   }
 
   return (
-    <div className="mt-8 border border-rule bg-white">
+    <div className="mt-8 rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden">
       <button
         onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center justify-between border-b border-rule bg-wash px-7 py-3"

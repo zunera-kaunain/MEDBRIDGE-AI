@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { api } from '../../lib/api'
+import { PublicNav } from '../../components/PublicNav'
 import { Chip, ErrorNotice, Field } from '../../components/ui'
 import type { DoctorForRouting, ReceptionistPatientSummary, SessionStatus } from '../../types'
 
@@ -75,107 +76,110 @@ export default function ReceptionistPatients() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12">
-      <button
-        onClick={() => navigate(-1)}
-        className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
-      >
-        ← Back
-      </button>
-      <div className="mt-3 flex items-center justify-between">
-        <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-seal">
-            Front desk
-          </p>
-          <h1 className="mt-1 font-display text-2xl font-medium text-slate-900">Patients</h1>
-        </div>
-        <div className="flex items-center gap-4">
-          <Link
-            to="/receptionist/referrals"
-            className="font-mono text-[11px] uppercase tracking-[0.1em] text-seal hover:opacity-80"
-          >
-            Referrals
-          </Link>
-          <Link
-            to="/receptionist/patients/new"
-            className="bg-seal px-4 py-2 font-mono text-[11px] uppercase tracking-[0.1em] text-paper hover:opacity-90"
-          >
-            Register a patient
-          </Link>
-        </div>
-      </div>
-
-      <div className="mt-6 max-w-sm">
-        <Field
-          label="Search"
-          name="q"
-          placeholder="Name, phone, or short ID"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-      </div>
-
-      {loadError && (
-        <div className="mt-4">
-          <ErrorNotice message={loadError} />
-        </div>
-      )}
-      {reassignError && (
-        <div className="mt-4">
-          <ErrorNotice message={reassignError} />
-        </div>
-      )}
-
-      <div className="mt-6 divide-y divide-rule border border-rule bg-white">
-        {patients.length === 0 && !loadError && (
-          <p className="px-5 py-6 text-sm text-graphite">No patients yet.</p>
-        )}
-        {patients.map((p) => (
-          <div key={p.id} className="flex flex-wrap items-center gap-4 px-5 py-4">
-            <div className="min-w-[180px] flex-1">
-              <p className="font-medium text-slate-900">
-                {p.full_name}{' '}
-                <span className="font-mono text-xs text-graphite">({p.short_id})</span>
-              </p>
-              <p className="text-sm text-graphite">
-                {p.age} yrs
-                {p.intake_chief_complaint ? ` · ${p.intake_chief_complaint}` : ''}
-              </p>
-            </div>
-
-            <div className="min-w-[200px]">
-              <select
-                value={p.doctor_id}
-                disabled={reassigningId === p.id}
-                onChange={(e) => handleReassign(p.id, e.target.value)}
-                className="w-full border-b border-rule bg-transparent pb-1 text-sm outline-none focus:border-seal"
-              >
-                {doctors.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.full_name}
-                    {d.specialization ? ` — ${d.specialization}` : ''}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="min-w-[140px]">
-              {p.latest_session_status ? (
-                <Chip tone={STATUS_TONE[p.latest_session_status]}>
-                  {STATUS_LABEL[p.latest_session_status]}
-                </Chip>
-              ) : (
-                <Chip tone="graphite">No consultation yet</Chip>
-              )}
-            </div>
-
-            <div className="min-w-[160px] text-sm text-graphite">
-              {p.next_followup_at
-                ? `Follow-up: ${new Date(p.next_followup_at).toLocaleDateString()}`
-                : ''}
-            </div>
+    <div className="min-h-screen">
+      <PublicNav />
+      <div className="mx-auto max-w-4xl px-6 py-12">
+        <button
+          onClick={() => navigate(-1)}
+          className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
+        >
+          ← Back
+        </button>
+        <div className="mt-3 flex items-center justify-between">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-seal">
+              Front desk
+            </p>
+            <h1 className="mt-1 font-display text-2xl font-medium text-ink">Patients</h1>
           </div>
-        ))}
+          <div className="flex items-center gap-4">
+            <Link
+              to="/receptionist/referrals"
+              className="font-mono text-[11px] uppercase tracking-[0.1em] text-seal hover:opacity-80"
+            >
+              Referrals
+            </Link>
+            <Link
+              to="/receptionist/patients/new"
+              className="bg-seal px-4 py-2 font-mono text-[11px] uppercase tracking-[0.1em] text-paper hover:opacity-90"
+            >
+              Register a patient
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-6 max-w-sm">
+          <Field
+            label="Search"
+            name="q"
+            placeholder="Name, phone, or short ID"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </div>
+
+        {loadError && (
+          <div className="mt-4">
+            <ErrorNotice message={loadError} />
+          </div>
+        )}
+        {reassignError && (
+          <div className="mt-4">
+            <ErrorNotice message={reassignError} />
+          </div>
+        )}
+
+        <div className="mt-6 divide-y divide-rule rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden">
+          {patients.length === 0 && !loadError && (
+            <p className="px-5 py-6 text-sm text-graphite">No patients yet.</p>
+          )}
+          {patients.map((p) => (
+            <div key={p.id} className="flex flex-wrap items-center gap-4 px-5 py-4">
+              <div className="min-w-[180px] flex-1">
+                <p className="font-medium text-ink">
+                  {p.full_name}{' '}
+                  <span className="font-mono text-xs text-graphite">({p.short_id})</span>
+                </p>
+                <p className="text-sm text-graphite">
+                  {p.age} yrs
+                  {p.intake_chief_complaint ? ` · ${p.intake_chief_complaint}` : ''}
+                </p>
+              </div>
+
+              <div className="min-w-[200px]">
+                <select
+                  value={p.doctor_id}
+                  disabled={reassigningId === p.id}
+                  onChange={(e) => handleReassign(p.id, e.target.value)}
+                  className="w-full border-b border-rule bg-transparent pb-1 text-sm outline-none focus:border-seal"
+                >
+                  {doctors.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.full_name}
+                      {d.specialization ? ` — ${d.specialization}` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="min-w-[140px]">
+                {p.latest_session_status ? (
+                  <Chip tone={STATUS_TONE[p.latest_session_status]}>
+                    {STATUS_LABEL[p.latest_session_status]}
+                  </Chip>
+                ) : (
+                  <Chip tone="graphite">No consultation yet</Chip>
+                )}
+              </div>
+
+              <div className="min-w-[160px] text-sm text-graphite">
+                {p.next_followup_at
+                  ? `Follow-up: ${new Date(p.next_followup_at).toLocaleDateString()}`
+                  : ''}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

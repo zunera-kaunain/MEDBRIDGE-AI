@@ -149,7 +149,7 @@ export default function PatientDetail() {
   async function handleDeletePatient() {
     if (!patient) return
     const confirmed = window.confirm(
-      `Permanently delete ${patient.full_name} and ALL their visit records, reports, and cards? This cannot be undone.`,
+      `Permanently delete ${patient.full_name} and ALL their visit records, case sheets, and cards? This cannot be undone.`,
     )
     if (!confirmed) return
 
@@ -185,7 +185,7 @@ export default function PatientDetail() {
   if (!patient) return null
 
   return (
-    <AppLayout>
+    <AppLayout back="none">
       <button
         onClick={() => navigate('/app/patients')}
         className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite hover:text-ink"
@@ -193,7 +193,7 @@ export default function PatientDetail() {
         ← Back to patients
       </button>
 
-      <div className="mt-4 flex items-start justify-between">
+      <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-graphite">
             {patient.short_id}
@@ -213,7 +213,7 @@ export default function PatientDetail() {
         </div>
 
         {!editing && (
-          <div className="flex shrink-0 gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={handleDeletePatient}
               disabled={deletingPatient}
@@ -235,7 +235,7 @@ export default function PatientDetail() {
       </div>
 
       {editing && (
-        <div className="mt-6 border border-rule bg-white px-6 py-6">
+        <div className="mt-6 rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-6 py-6">
           <form onSubmit={handleSaveEdit} className="space-y-5">
             {editError && <ErrorNotice message={editError} />}
 
@@ -308,7 +308,7 @@ export default function PatientDetail() {
         </div>
       )}
 
-      <div className="mt-8 border border-rule bg-white">
+      <div className="mt-8 rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden">
         <div className="border-b border-rule bg-wash px-7 py-3">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-graphite">
             Visit History

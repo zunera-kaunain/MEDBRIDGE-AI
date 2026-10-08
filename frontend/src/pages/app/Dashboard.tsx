@@ -187,7 +187,7 @@ export default function Dashboard() {
                   setAdding(true)
                   setJustAdded(null)
                 }}
-                className="border border-seal px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-seal transition-colors hover:bg-seal hover:text-paper"
+                className="rounded-lg border border-seal px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-seal transition-colors hover:bg-seal hover:text-paper"
               >
                 + Add Patient
               </button>
@@ -195,7 +195,7 @@ export default function Dashboard() {
           </div>
 
           {adding && (
-            <div className="mt-3 border border-rule bg-white px-6 py-6">
+            <div className="mt-3 rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-6 py-6">
               <form onSubmit={handleCreate} className="space-y-5">
                 {formError && <ErrorNotice message={formError} />}
 
@@ -285,7 +285,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => startConsultation(justAdded)}
                   disabled={starting}
-                  className="shrink-0 border border-seal bg-seal px-4 py-2 font-mono text-[11px] uppercase tracking-[0.12em] text-paper transition-opacity hover:opacity-90 disabled:opacity-50"
+                  className="shrink-0 rounded-lg border border-seal bg-seal px-4 py-2 font-mono text-[11px] uppercase tracking-[0.12em] text-paper transition-opacity hover:opacity-90 disabled:opacity-50"
                 >
                   {starting ? 'Starting…' : 'Start Consultation'}
                 </button>
@@ -304,7 +304,7 @@ export default function Dashboard() {
           />
 
           {needsConsent ? (
-            <div className="mt-4 border border-rule bg-white px-6 py-6">
+            <div className="mt-4 rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-6 py-6">
               <p className="font-display text-lg">Patient Consent</p>
               <p className="mt-2 text-sm text-graphite">
                 Before recording starts, the patient (or their attendant) must consent to

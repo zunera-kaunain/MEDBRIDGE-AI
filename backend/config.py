@@ -40,6 +40,19 @@ class Settings(BaseSettings):
     smtp_email: str = ""
     smtp_app_password: str = ""
 
+    # Used to build the link in password-reset emails.
+    frontend_url: str = "http://localhost:5173"
+
+    # Deployment
+    # "production" turns on startup safety checks (see main.py).
+    environment: str = "development"
+    # Comma-separated list of browser origins allowed to call the API.
+    # Needed only when the frontend is served from somewhere else; when
+    # FastAPI serves the built React app itself, everything is one origin.
+    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+    # Where `npm run build` puts the React app. If it exists, FastAPI serves it.
+    frontend_dist: str = "../frontend/dist"
+
     # WhatsApp (Twilio sandbox) — all optional; whatsapp.py no-ops with a
     # log line if these aren't set, same spirit as the SMTP guard above.
     twilio_account_sid: str = ""

@@ -17,6 +17,7 @@ from models.doctor import (
     DoctorRegister,
     TokenResponse,
 )
+from utils.rate_limit import check_rate_limit, rate_limit
 from utils.security import create_access_token, hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -26,7 +27,12 @@ def _to_public(doctor: Doctor) -> DoctorPublic:
     return DoctorPublic(**doctor.model_dump())
 
 
-@router.post("/register", response_model=TokenResponse, status_code=201)
+@router.post(
+    "/register",
+    response_model=TokenResponse,
+    status_code=201,
+    dependencies=[Depends(rate_limit("register", 10, 3600))],
+)
 async def register(payload: DoctorRegister) -> TokenResponse:
     try:
         hashed = hash_password(payload.password)
@@ -56,8 +62,15 @@ async def register(payload: DoctorRegister) -> TokenResponse:
     )
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+    dependencies=[Depends(rate_limit("login", 15, 60))],
+)
 async def login(payload: DoctorLogin) -> TokenResponse:
+    # Per-email limit too, so password guessing against one account is
+    # slowed even when the attempts come from many addresses.
+    check_rate_limit(f"login:doctor:{payload.email.lower()}", 8, 900)
     doc = await db.doctors().find_one({"email": payload.email.lower()})
 
     # Same error for unknown email and wrong password — telling an attacker

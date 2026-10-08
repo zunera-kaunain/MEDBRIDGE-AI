@@ -27,9 +27,9 @@ export function CaseSheet({
   footer?: ReactNode
 }) {
   return (
-    <div className="w-full max-w-lg">
-      <div className="border border-rule bg-white shadow-[0_1px_0_var(--color-rule),0_16px_40px_-24px_rgba(22,33,28,0.55)]">
-        <div className="border-b border-rule bg-wash px-7 py-3">
+    <div className="mb-fade-up w-full max-w-lg">
+      <div className="rounded-2xl border border-rule/80 bg-white/90 overflow-hidden shadow-[0_1px_0_var(--color-rule),0_16px_40px_-24px_rgba(22,33,28,0.55)]">
+        <div className="border-b border-rule bg-gradient-to-r from-wash to-[#e4eee8] px-7 py-3">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-graphite">
             {eyebrow}
           </p>
@@ -76,7 +76,7 @@ export function Field({ label, hint, id, ...props }: FieldProps) {
         id={fieldId}
         {...props}
         className="mt-1.5 w-full border-b border-rule bg-transparent pb-1.5 text-[15px]
-                   outline-none transition-colors placeholder:text-rule
+                   outline-none transition-colors placeholder:text-graphite/70
                    focus:border-seal"
       />
       {hint && <p className="mt-1 text-xs text-graphite">{hint}</p>}
@@ -127,13 +127,13 @@ export function Button({
   variant?: 'primary' | 'quiet'
 } & InputHTMLAttributes<HTMLButtonElement>) {
   const base =
-    'w-full py-3 text-[13px] font-medium tracking-[0.08em] uppercase font-mono ' +
+    'w-full rounded-xl py-3 text-[13px] font-medium tracking-[0.08em] uppercase font-mono ' +
     'transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed'
 
   const styles =
     variant === 'primary'
-      ? 'bg-seal text-paper hover:opacity-90 shadow-[0_6px_16px_-8px_rgba(31,77,63,0.6)]'
-      : 'border border-rule text-ink hover:bg-wash'
+      ? 'bg-gradient-to-b from-[#14705b] to-seal text-paper hover:brightness-110 hover:-translate-y-px shadow-[0_8px_20px_-10px_rgba(15,92,74,0.75)]'
+      : 'border border-rule bg-white/60 text-ink hover:bg-wash'
 
   return (
     <button
@@ -222,7 +222,7 @@ export function Chip({
 
   return (
     <span
-      className={`inline-flex items-center border px-2.5 py-1 font-mono text-[10px]
+      className={`inline-flex items-center rounded-full border px-2.5 py-1 font-mono text-[10px]
                   font-medium uppercase tracking-[0.14em] ${tones}`}
     >
       {children}
@@ -252,7 +252,7 @@ export function StatTile({
   }[tone]
 
   return (
-    <div className="border border-rule bg-white px-5 py-4 shadow-[0_10px_28px_-22px_rgba(22,33,28,0.5)]">
+    <div className="rounded-2xl border border-rule/80 bg-white/90 overflow-hidden px-5 py-4 shadow-[0_10px_28px_-22px_rgba(22,33,28,0.5)]">
       <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-graphite">
         {label}
       </p>

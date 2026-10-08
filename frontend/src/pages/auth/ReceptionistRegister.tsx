@@ -3,9 +3,12 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { useReceptionistAuth } from '../../lib/receptionistAuth'
 import { Button, CaseSheet, ErrorNotice, Field } from '../../components/ui'
+import { BackButton } from '../../components/BackButton'
+import { ConsentCheckbox } from '../../components/ConsentCheckbox'
+import { GoogleSignInButton } from '../../components/GoogleSignInButton'
 
 export default function ReceptionistRegister() {
-  const { register } = useReceptionistAuth()
+  const { register, signInWithGoogle } = useReceptionistAuth()
   const navigate = useNavigate()
 
   const [fullName, setFullName] = useState('')
@@ -13,6 +16,7 @@ export default function ReceptionistRegister() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [agreed, setAgreed] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -30,7 +34,10 @@ export default function ReceptionistRegister() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12">
+    <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
+      <div className="absolute left-6 top-6 z-10">
+        <BackButton fallback="/" />
+      </div>
       <CaseSheet
         eyebrow="MedBridge AI · Front Desk"
         title="Create a receptionist account"
@@ -83,12 +90,23 @@ export default function ReceptionistRegister() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
+          <ConsentCheckbox checked={agreed} onChange={setAgreed} />
+
           <div className="pt-2">
-            <Button type="submit" loading={busy}>
+            <Button type="submit" loading={busy} disabled={!agreed}>
               Create account
             </Button>
           </div>
         </form>
+
+        <GoogleSignInButton
+          onError={setError}
+          blockedMessage={agreed ? undefined : 'Tick the box to agree to the Terms and Privacy Policy first'}
+          onCredential={async (credential) => {
+            await signInWithGoogle(credential)
+            navigate('/receptionist')
+          }}
+        />
       </CaseSheet>
     </div>
   )

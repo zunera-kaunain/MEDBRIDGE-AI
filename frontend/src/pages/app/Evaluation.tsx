@@ -129,7 +129,7 @@ export default function EvaluationPage() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {Object.entries(extraction.totals).map(([field, score]) => (
-              <div key={field} className="border border-rule bg-white p-5 shadow-[0_10px_28px_-22px_rgba(22,33,28,0.5)]">
+              <div key={field} className="rounded-2xl border border-rule/80 bg-white/90 overflow-hidden p-5 shadow-[0_10px_28px_-22px_rgba(22,33,28,0.5)]">
                 <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-graphite mb-3">
                   {field}
                 </p>
@@ -172,7 +172,7 @@ export default function EvaluationPage() {
             <StatTile label="Mean Character Error Rate" value={`${(wer.mean_cer * 100).toFixed(1)}%`} tone="caution" />
           </div>
 
-          <div className="mt-6 border border-rule bg-white">
+          <div className="mt-6 rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden">
             <div className="border-b border-rule bg-wash px-5 py-3">
               <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-graphite">
                 Per-clip results

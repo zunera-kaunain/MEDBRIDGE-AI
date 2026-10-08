@@ -35,15 +35,15 @@ async def send_report_to_patient(report: Report, patient: Patient, doctor: Docto
             await asyncio.to_thread(
                 email_service.send_email_with_attachments,
                 to_address=patient.email,
-                subject=f"Your visit report — {patient.full_name}",
+                subject=f"Your visit case sheet — {patient.full_name}",
                 body=(
                     f"Dear {patient.full_name},\n\n"
-                    f"Your visit report from Dr. {doctor.full_name} is attached.\n\n"
+                    f"Your visit case sheet from Dr. {doctor.full_name} is attached.\n\n"
                     "Regards,\nMedBridge AI"
                 ),
                 attachments=[
                     email_service.EmailAttachment(
-                        filename=f"report-{patient.short_id}.pdf", content=pdf_bytes
+                        filename=f"case-sheet-{patient.short_id}.pdf", content=pdf_bytes
                     )
                 ],
             )
@@ -54,7 +54,7 @@ async def send_report_to_patient(report: Report, patient: Patient, doctor: Docto
         try:
             await whatsapp_service.send_whatsapp_message(
                 patient.phone,
-                f"Hi {patient.full_name}, your visit report from Dr. {doctor.full_name} "
+                f"Hi {patient.full_name}, your visit case sheet from Dr. {doctor.full_name} "
                 "has been emailed to you. — MedBridge AI",
             )
         except Exception:

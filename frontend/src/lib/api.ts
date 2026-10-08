@@ -42,6 +42,39 @@ export function clearReceptionistToken(): void {
   localStorage.removeItem(RECEPTIONIST_TOKEN_KEY)
 }
 
+// --- Session expiry -------------------------------------------------------
+// A token lasts 8 hours. When the server says "Not authenticated" for a
+// request that did carry a token, the session has expired: drop the token,
+// leave a note for the sign-in page, and send the user there. Other 401s
+// (for example a wrong password when deleting an account) are NOT expiry.
+
+const NOTICE_KEY = 'medbridge_session_notice'
+const EXPIRED_MESSAGE = 'Your session expired. Please sign in again.'
+
+export function setSessionNotice(message: string = EXPIRED_MESSAGE): void {
+  try {
+    sessionStorage.setItem(NOTICE_KEY, message)
+  } catch {
+    /* storage unavailable — the redirect alone still works */
+  }
+}
+
+export function getSessionNotice(): string | null {
+  try {
+    return sessionStorage.getItem(NOTICE_KEY)
+  } catch {
+    return null
+  }
+}
+
+export function clearSessionNotice(): void {
+  try {
+    sessionStorage.removeItem(NOTICE_KEY)
+  } catch {
+    /* ignore */
+  }
+}
+
 export class ApiError extends Error {
   status: number
   constructor(status: number, message: string) {
@@ -68,9 +101,13 @@ export async function api<T>(
   const headers: Record<string, string> = {}
   if (body !== undefined) headers['Content-Type'] = 'application/json'
 
+  let sentToken = false
   if (auth) {
     const token = role === 'receptionist' ? getReceptionistToken() : getToken()
-    if (token) headers['Authorization'] = `Bearer ${token}`
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+      sentToken = true
+    }
   }
 
   const res = await fetch(path, {
@@ -92,6 +129,17 @@ export async function api<T>(
       : typeof detail === 'string'
         ? detail
         : 'Something went wrong. Try again.'
+    // Expired session: only for calls that carried a token, and not for the
+    // startup "who am I" checks (those just clear the token quietly, so a
+    // visitor with an old token can still see the landing page).
+    const isRestoreCheck = path === '/auth/me' || path === '/auth/receptionist/me'
+    if (sentToken && res.status === 401 && detail === 'Not authenticated' && !isRestoreCheck) {
+      const loginPath = role === 'receptionist' ? '/receptionist/login' : '/login'
+      if (role === 'receptionist') clearReceptionistToken()
+      else clearToken()
+      setSessionNotice()
+      if (window.location.pathname !== loginPath) window.location.assign(loginPath)
+    }
     throw new ApiError(res.status, message)
   }
 

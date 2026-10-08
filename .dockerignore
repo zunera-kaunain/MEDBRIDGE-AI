@@ -1,0 +1,9 @@
+.git
+.claude
+venv
+**/node_modules
+**/__pycache__
+frontend/dist
+backend/.env
+**/.env
+eval/data/audio

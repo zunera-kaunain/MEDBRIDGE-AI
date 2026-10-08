@@ -93,7 +93,7 @@ export default function Patients() {
         {!adding && (
           <button
             onClick={() => setAdding(true)}
-            className="border border-seal px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-seal transition-colors hover:bg-seal hover:text-paper"
+            className="rounded-lg border border-seal px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-seal transition-colors hover:bg-seal hover:text-paper"
           >
             + Add Patient
           </button>
@@ -101,7 +101,7 @@ export default function Patients() {
       </div>
 
       {adding && (
-        <div className="mt-6 border border-rule bg-white px-6 py-6">
+        <div className="mt-6 rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-6 py-6">
           <form onSubmit={handleCreate} className="space-y-5">
             {formError && <ErrorNotice message={formError} />}
 
@@ -190,7 +190,7 @@ export default function Patients() {
         </div>
       )}
 
-      <div className="mt-6 border border-rule bg-white">
+      <div className="mt-6 rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden">
         {loading ? (
           <div className="px-6 py-14 text-center">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-graphite">
@@ -209,7 +209,8 @@ export default function Patients() {
             </p>
           </div>
         ) : (
-          <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[520px] text-left text-sm">
             <thead>
               <tr className="border-b border-rule">
                 {['ID', 'Name', 'Age / Sex', 'Language', 'Visits', 'Last seen'].map(
@@ -265,6 +266,7 @@ export default function Patients() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </AppLayout>

@@ -139,7 +139,7 @@ export default function ReferralPage() {
   const showForm = editingForm || (!loading && !referral)
 
   return (
-    <AppLayout>
+    <AppLayout back="none">
       {patientId && (
         <button
           onClick={() => navigate(`/app/patients/${patientId}`)}
@@ -165,7 +165,7 @@ export default function ReferralPage() {
           Loading
         </p>
       ) : showForm ? (
-        <div className="mt-8 border border-rule bg-white px-7 py-7">
+        <div className="mt-8 rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-7 py-7">
           {!referral && (
             <p className="mb-6 text-sm text-graphite">
               Generate a referral letter for this consultation. Fields left blank are
@@ -230,7 +230,7 @@ export default function ReferralPage() {
           </div>
         </div>
       ) : referral ? (
-        <div className="mt-8 border border-rule bg-white px-7 py-7">
+        <div className="mt-8 rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-7 py-7">
           <div className="border-b border-rule py-3">
             <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-graphite">
               To

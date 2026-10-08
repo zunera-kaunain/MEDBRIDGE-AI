@@ -1,12 +1,14 @@
 import { PublicNav } from '../components/PublicNav'
+import { BackButton } from '../components/BackButton'
 import { PublicFooter } from '../components/PublicFooter'
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen">
       <PublicNav />
 
       <div className="mx-auto max-w-3xl px-6 py-20">
+        <BackButton fallback="/" className="mb-8" />
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-graphite">
           About
         </p>

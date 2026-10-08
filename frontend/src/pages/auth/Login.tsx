@@ -1,17 +1,22 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../lib/auth'
 import { Button, CaseSheet, ErrorNotice, Field } from '../../components/ui'
+import { clearSessionNotice, getSessionNotice } from '../../lib/api'
+import { BackButton } from '../../components/BackButton'
+import { GoogleSignInButton } from '../../components/GoogleSignInButton'
 
 export default function Login() {
-  const { signIn } = useAuth()
+  const { signIn, signInWithGoogle } = useAuth()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [notice] = useState(getSessionNotice)
+  useEffect(() => clearSessionNotice(), [])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -28,7 +33,10 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12">
+    <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
+      <div className="absolute left-6 top-6 z-10">
+        <BackButton fallback="/" />
+      </div>
       <CaseSheet
         eyebrow="MedBridge AI · OPD Documentation"
         title="Sign in"
@@ -48,7 +56,15 @@ export default function Login() {
         }
       >
         <form onSubmit={handleSubmit} className="space-y-5">
-          {error && <ErrorNotice message={error} />}
+          {notice && !error && (
+          <div
+            role="status"
+            className="border-l-2 border-caution bg-[#f3ecd9] px-3 py-2 text-sm text-ink"
+          >
+            {notice}
+          </div>
+        )}
+        {error && <ErrorNotice message={error} />}
 
           <Field
             label="Email"
@@ -70,12 +86,29 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
+          <div className="-mt-2 text-right">
+            <Link
+              to="/forgot-password"
+              className="text-[13px] text-seal underline underline-offset-2"
+            >
+              Forgot password?
+            </Link>
+          </div>
+
           <div className="pt-2">
             <Button type="submit" loading={busy}>
               Sign in
             </Button>
           </div>
         </form>
+
+        <GoogleSignInButton
+          onError={setError}
+          onCredential={async (credential) => {
+            const d = await signInWithGoogle(credential)
+            navigate(d.profile_complete ? '/app' : '/complete-profile')
+          }}
+        />
       </CaseSheet>
     </div>
   )

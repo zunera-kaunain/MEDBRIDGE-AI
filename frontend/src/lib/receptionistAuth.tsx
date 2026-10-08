@@ -23,10 +23,12 @@ import {
 } from 'react'
 
 import {
+  ApiError,
   api,
   clearReceptionistToken,
   getReceptionistToken,
   setReceptionistToken,
+  setSessionNotice,
 } from './api'
 import type { ReceptionistPublic, ReceptionistTokenResponse } from '../types'
 
@@ -35,6 +37,7 @@ interface ReceptionistAuthState {
   loading: boolean
   signIn: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, fullName: string) => Promise<void>
+  signInWithGoogle: (credential: string) => Promise<void>
   signOut: () => void
 }
 
@@ -51,7 +54,10 @@ export function ReceptionistAuthProvider({ children }: { children: ReactNode }) 
     }
     api<ReceptionistPublic>('/auth/receptionist/me', { role: 'receptionist' })
       .then(setReceptionist)
-      .catch(() => clearReceptionistToken())
+      .catch((err) => {
+        clearReceptionistToken()
+        if (err instanceof ApiError && err.status === 401) setSessionNotice()
+      })
       .finally(() => setLoading(false))
   }, [])
 
@@ -78,14 +84,24 @@ export function ReceptionistAuthProvider({ children }: { children: ReactNode }) 
     [],
   )
 
+  const signInWithGoogle = useCallback(async (credential: string) => {
+    const res = await api<ReceptionistTokenResponse>('/auth/google', {
+      method: 'POST',
+      body: { credential, role: 'receptionist' },
+      auth: false,
+    })
+    setReceptionistToken(res.access_token)
+    setReceptionist(res.receptionist)
+  }, [])
+
   const signOut = useCallback(() => {
     clearReceptionistToken()
     setReceptionist(null)
   }, [])
 
   const value = useMemo(
-    () => ({ receptionist, loading, signIn, register, signOut }),
-    [receptionist, loading, signIn, register, signOut],
+    () => ({ receptionist, loading, signIn, register, signInWithGoogle, signOut }),
+    [receptionist, loading, signIn, register, signInWithGoogle, signOut],
   )
 
   return (

@@ -9,6 +9,7 @@ import {
   Field,
   SelectField,
 } from '../../components/ui'
+import { BackButton } from '../../components/BackButton'
 
 const COUNCILS = [
   'Karnataka Medical Council',
@@ -105,7 +106,7 @@ function SuggestField({
         onBlur={() => setTimeout(() => setOpen(false), 120)}
       />
       {open && filtered.length > 0 && (
-        <div className="absolute z-10 mt-1 max-h-56 w-full overflow-auto border border-rule bg-white shadow-[0_12px_28px_-16px_rgba(22,33,28,0.45)]">
+        <div className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-2xl border border-rule/80 bg-white/90 shadow-[0_12px_28px_-16px_rgba(22,33,28,0.45)]">
           {filtered.map((o) => (
             <button
               key={o}
@@ -160,11 +161,14 @@ export default function CompleteProfile() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12">
+    <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
+      <div className="absolute left-6 top-6 z-10">
+        <BackButton fallback="/app" />
+      </div>
       <CaseSheet
         eyebrow="MedBridge AI · Practitioner details"
         title="Your professional details"
-        subtitle="Your registration number appears on every report you generate."
+        subtitle="Your registration number appears on every case sheet you generate."
       >
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && <ErrorNotice message={error} />}
@@ -242,7 +246,7 @@ export default function CompleteProfile() {
 
           {/* The honesty rule, stated where the doctor will actually read it. */}
           <p className="border-l-2 border-rule pl-3 text-xs leading-relaxed text-graphite">
-            MedBridge records these details on your reports. It does not check
+            MedBridge records these details on your case sheets. It does not check
             them against the Indian Medical Register, so your account stays
             marked <span className="text-caution">verification pending</span>.
           </p>

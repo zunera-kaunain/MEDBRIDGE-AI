@@ -2,34 +2,46 @@
  * App shell for signed-in pages.
  *
  * The header carries the practitioner's registration number because that
- * number appears on every report generated in this session — keeping it
+ * number appears on every case sheet generated in this session — keeping it
  * visible is a small guard against a doctor working under the wrong account.
  */
 
 import type { ReactNode } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 
 import { useAuth } from '../lib/auth'
+import { BackButton } from './BackButton'
 
 const navItem =
   'font-mono text-[11px] uppercase tracking-[0.14em] pb-1 border-b-2 transition-colors'
 
-export function AppLayout({ children }: { children: ReactNode }) {
+/**
+ * back="none" is for pages that draw their own, more specific back button
+ * (for example "Back to patient").
+ */
+export function AppLayout({
+  children,
+  back = 'auto',
+}: {
+  children: ReactNode
+  back?: 'auto' | 'none'
+}) {
   const { doctor, signOut } = useAuth()
+  const { pathname } = useLocation()
 
   return (
     <div className="relative z-10 min-h-screen">
-      <header className="border-b border-rule bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <div className="flex items-baseline gap-8">
+      <header className="sm:sticky sm:top-0 z-20 border-b border-rule/70 bg-white/75 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-4 sm:px-6">
+          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2 sm:gap-x-8">
             <Link
               to="/app/profile"
-              className="font-display text-lg font-medium text-ink transition-opacity hover:opacity-75"
+              className="whitespace-nowrap font-display text-lg font-medium text-ink transition-opacity hover:opacity-75"
               title="Your profile"
             >
               MedBridge AI
             </Link>
-            <nav className="flex gap-6">
+            <nav className="flex gap-4 sm:gap-6">
               <NavLink
                 to="/app"
                 end
@@ -70,7 +82,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
             </nav>
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4 sm:gap-5">
             <span className="hidden font-mono text-[11px] text-graphite sm:inline">
               {doctor?.registration_number}
             </span>
@@ -84,7 +96,12 @@ export function AppLayout({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-10">{children}</main>
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+        {back === 'auto' && (
+          <BackButton fallback={pathname === '/app' ? '/' : '/app'} className="mb-5 block" />
+        )}
+        {children}
+      </div>
     </div>
   )
 }

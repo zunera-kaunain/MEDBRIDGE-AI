@@ -134,7 +134,7 @@ export default function ReportPage() {
       })
       setReport(r)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not generate report')
+      setError(err instanceof Error ? err.message : 'Could not generate case sheet')
     } finally {
       setGenerating(false)
     }
@@ -184,7 +184,7 @@ export default function ReportPage() {
       setReport(r)
       setStampTrigger((n) => n + 1)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not confirm report')
+      setError(err instanceof Error ? err.message : 'Could not confirm case sheet')
     } finally {
       setConfirming(false)
     }
@@ -220,8 +220,8 @@ export default function ReportPage() {
       const a = document.createElement('a')
       a.href = url
       a.download = patient
-        ? `${safeFilename(patient.full_name)}_report.pdf`
-        : `report-${sessionId}.pdf`
+        ? `${safeFilename(patient.full_name)}_case-sheet.pdf`
+        : `case-sheet-${sessionId}.pdf`
       a.click()
       URL.revokeObjectURL(url)
     } catch (err) {
@@ -280,7 +280,7 @@ export default function ReportPage() {
   }
 
   return (
-    <AppLayout>
+    <AppLayout back="none">
       <StampBurst trigger={stampTrigger} label="Confirmed" />
 
       {patientId && (
@@ -295,10 +295,10 @@ export default function ReportPage() {
       <div className="flex items-end justify-between">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-graphite">
-            Consultation Report
+            Consultation Case Sheet
           </p>
           <h1 className="mt-1.5 font-display text-3xl font-medium">
-            {report ? 'Report' : 'Generate Report'}
+            {report ? 'Case Sheet' : 'Generate Case Sheet'}
           </h1>
         </div>
         {report && !report.confirmed && !editing && (
@@ -319,18 +319,18 @@ export default function ReportPage() {
 
       {!report ? (
         <div className="mt-8 border border-dashed border-rule px-8 py-14 text-center">
-          <p className="font-display text-lg">No report yet</p>
+          <p className="font-display text-lg">No case sheet yet</p>
           <p className="mx-auto mt-2 max-w-sm text-sm text-graphite">
-            Generate a structured report from this consultation's transcript.
+            Generate a structured case sheet from this consultation's transcript.
           </p>
           <div className="mx-auto mt-6 max-w-xs">
             <Button onClick={handleGenerate} loading={generating}>
-              Generate Report
+              Generate Case Sheet
             </Button>
           </div>
         </div>
       ) : editing && draft ? (
-        <div className="mt-8 border border-rule bg-white px-7 py-7">
+        <div className="mt-8 rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-7 py-7">
           <div className="border-b border-rule py-3">
             <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-graphite">
               Chief Complaint
@@ -575,7 +575,7 @@ export default function ReportPage() {
           </div>
         </div>
       ) : (
-        <div className="mt-8 border border-rule bg-white px-7 py-7">
+        <div className="mt-8 rounded-2xl border border-rule/80 bg-white/90 shadow-[0_10px_30px_-22px_rgba(22,33,28,0.4)] overflow-hidden px-7 py-7">
           <ViewField label="Chief Complaint" field={report.chief_complaint} />
 
           {report.symptoms.length > 0 && (
@@ -738,7 +738,7 @@ export default function ReportPage() {
           <div className="mt-6 flex flex-wrap items-center gap-3">
             {!report.confirmed ? (
               <Button onClick={handleConfirm} loading={confirming}>
-                Confirm Report
+                Confirm Case Sheet
               </Button>
             ) : (
               <>
